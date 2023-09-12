@@ -5,7 +5,6 @@ import (
 	"log"
 	"strings"
 
-	"github.com/IliyaYavorovPetrov/api-gateway/app/common/models"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
@@ -32,7 +31,7 @@ func GetSessionIDFromSessionHashKey(s string) string {
 }
 
 // AddToSessionStore 0.3.0
-func AddToSessionStore(ctx context.Context, s *models.Session) (string, error) {
+func AddToSessionStore(ctx context.Context, s *Session) (string, error) {
 	sessionID := uuid.New().String()
 
 	if _, err := rdb.HSet(ctx, createSessionHashKey(sessionID), s).Result(); err != nil {
@@ -44,8 +43,8 @@ func AddToSessionStore(ctx context.Context, s *models.Session) (string, error) {
 }
 
 // GetSessionFromSessionID 0.3.0
-func GetSessionFromSessionID(ctx context.Context, sessionID string) (*models.Session, error) {
-	var s models.Session
+func GetSessionFromSessionID(ctx context.Context, sessionID string) (*Session, error) {
+	var s Session
 	err := rdb.HGetAll(ctx, createSessionHashKey(sessionID)).Scan(&s)
 	if err != nil {
 		return nil, err

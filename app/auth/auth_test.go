@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/IliyaYavorovPetrov/api-gateway/app/auth"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/common/models"
 )
 
 func clearSessionStore(ctx context.Context) {
@@ -17,7 +16,7 @@ func TestAddAndGetFromSessionStore(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	s1 := &models.Session{
+	s1 := &auth.Session{
 		UserID:        "id",
 		Username:      "ivan",
 		UserRole:      "User",
@@ -43,7 +42,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	s1 := &models.Session{
+	s1 := &auth.Session{
 		UserID:        "id1",
 		Username:      "ivan",
 		UserRole:      "User",
@@ -55,7 +54,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 		t.Fatalf("AddToSessionStore failed: %v", err)
 	}
 
-	s2 := &models.Session{
+	s2 := &auth.Session{
 		UserID:        "id2",
 		Username:      "gosho",
 		UserRole:      "Admin",
@@ -91,7 +90,7 @@ func TestChangeBlacklistStatusUser(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	s1 := &models.Session{
+	s1 := &auth.Session{
 		UserID:        "id",
 		Username:      "ivan",
 		UserRole:      "User",
