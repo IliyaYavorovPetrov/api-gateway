@@ -22,7 +22,7 @@ func createSessionHashKey(sessionID string) string {
 	return prefixAuthSession + sessionID
 }
 
-// GetSessionIDFromSessionHashKey 0.2.0
+// GetSessionIDFromSessionHashKey 0.3.0
 func GetSessionIDFromSessionHashKey(s string) string {
 	if strings.HasPrefix(s, prefixAuthSession) {
 		return s[len(prefixAuthSession):]
@@ -31,7 +31,7 @@ func GetSessionIDFromSessionHashKey(s string) string {
 	return s
 }
 
-// AddToSessionStore 0.2.0
+// AddToSessionStore 0.3.0
 func AddToSessionStore(ctx context.Context, s *models.Session) (string, error) {
 	sessionID := uuid.New().String()
 
@@ -43,7 +43,7 @@ func AddToSessionStore(ctx context.Context, s *models.Session) (string, error) {
 	return sessionID, nil
 }
 
-// GetSessionFromSessionID 0.2.0
+// GetSessionFromSessionID 0.3.0
 func GetSessionFromSessionID(ctx context.Context, sessionID string) (*models.Session, error) {
 	var s models.Session
 	err := rdb.HGetAll(ctx, createSessionHashKey(sessionID)).Scan(&s)
@@ -54,7 +54,7 @@ func GetSessionFromSessionID(ctx context.Context, sessionID string) (*models.Ses
 	return &s, nil
 }
 
-// GetAllSessionIDs 0.2.0
+// GetAllSessionIDs 0.3.0
 func GetAllSessionIDs(ctx context.Context) ([]string, error) {
 	var sessions []string
 	iter := rdb.Scan(ctx, 0, prefixAuthSession+"*", 0).Iterator()
@@ -68,7 +68,7 @@ func GetAllSessionIDs(ctx context.Context) ([]string, error) {
 	return sessions, nil
 }
 
-// ChangeBlacklistStatusOfSession 0.2.0
+// ChangeBlacklistStatusOfSession 0.3.0
 func ChangeBlacklistStatusOfSession(ctx context.Context, sessionID string, blackListStatus bool) error {
 	if _, err := rdb.HSet(ctx, createSessionHashKey(sessionID), "isBlacklisted", blackListStatus).Result(); err != nil {
 		log.Fatalf("failed to create an auth session %s", err)
@@ -78,7 +78,7 @@ func ChangeBlacklistStatusOfSession(ctx context.Context, sessionID string, black
 	return nil
 }
 
-// RemoveSessionFromSessionStore 0.2.0
+// RemoveSessionFromSessionStore 0.3.0
 func RemoveSessionFromSessionStore(ctx context.Context, sessionID string) error {
 	err := rdb.HDel(ctx, createSessionHashKey(sessionID)).Err()
 	if err != nil {
@@ -88,7 +88,7 @@ func RemoveSessionFromSessionStore(ctx context.Context, sessionID string) error 
 	return nil
 }
 
-// ClearSessionStore 0.2.0
+// ClearSessionStore 0.3.0
 func ClearSessionStore(ctx context.Context) {
 	rdb.FlushAll(ctx)
 }
