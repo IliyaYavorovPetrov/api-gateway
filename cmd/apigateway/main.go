@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/IliyaYavorovPetrov/api-gateway/app/auth"
 	"github.com/gorilla/mux"
 )
 
@@ -20,6 +22,15 @@ func main() {
 		Addr:    ":8080",
 		Handler: r,
 	}
+
+	ctx := context.Background()
+
+	res, err := auth.GetAllSessionIDs(ctx)
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	fmt.Println(res)
 
 	log.Fatal(server.ListenAndServe())
 }
