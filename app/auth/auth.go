@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/IliyaYavorovPetrov/api-gateway/app/common/models"
 	"github.com/google/uuid"
@@ -21,6 +22,14 @@ func createSessionHashKey(sessionID string) string {
 	return prefixAuthSession + sessionID
 }
 
+func GetSessionIdFromSessionHashKey(s string) string {
+	if strings.HasPrefix(s, prefixAuthSession) {
+		return s[len(prefixAuthSession):]
+	}
+
+	return s
+}
+
 func AddToSessionStore(ctx context.Context, s *models.Session) (string, error) {
 	sessionID := uuid.New().String()
 
@@ -32,14 +41,14 @@ func AddToSessionStore(ctx context.Context, s *models.Session) (string, error) {
 	return sessionID, nil
 }
 
-func GetSessionFromSessionID(ctx context.Context, sessionID string) *models.Session {
+func GetSessionFromSessionID(ctx context.Context, sessionID string) (*models.Session, error) {
 	var s models.Session
 	err := rdb.HGetAll(ctx, createSessionHashKey(sessionID)).Scan(&s)
 	if err != nil {
-		log.Fatalf("failed to create an auth session %s", err)
+		return nil, err
 	}
 
-	return &s
+	return &s, nil
 }
 
 func GetAllSessionIDs(ctx context.Context) ([]string, error) {
@@ -71,4 +80,8 @@ func RemoveSessionFromSessionStore(ctx context.Context, sessionID string) error 
 	}
 
 	return nil
+}
+
+func ClearSessionStore(ctx context.Context) {
+	rdb.FlushAll(ctx)
 }
