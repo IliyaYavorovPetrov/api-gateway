@@ -81,7 +81,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	}
 
 	for _, str := range allSessionIDs {
-		if _, found := valuesToCheck[auth.GetSessionIdFromSessionHashKey(str)]; !found {
+		if _, found := valuesToCheck[auth.GetSessionIDFromSessionHashKey(str)]; !found {
 			t.Errorf("value %s not found in the list", str)
 		}
 	}
