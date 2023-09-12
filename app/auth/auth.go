@@ -89,5 +89,6 @@ func RemoveSessionFromSessionStore(ctx context.Context, sessionID string) error 
 
 // ClearSessionStore 0.3.0
 func ClearSessionStore(ctx context.Context) {
+	// TODO: Delete by pattern
 	rdb.FlushAll(ctx)
 }
