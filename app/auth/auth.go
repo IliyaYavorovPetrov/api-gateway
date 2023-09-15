@@ -21,19 +21,19 @@ func createSessionHashKey(sessionID string) string {
 	return prefixAuthSession + sessionID
 }
 
-func GetSessionIDFromSessionHashKey(s string) string {
+func GetSessionIDFromSessionHashKey(s string) (string, error) {
 	if strings.HasPrefix(s, prefixAuthSession) {
-		return s[len(prefixAuthSession):]
+		return s[len(prefixAuthSession):], nil
 	}
 
-	return s
+	return s, ErrNotValidSessionHashKey
 }
 
 func AddToSessionStore(ctx context.Context, s *Session) (string, error) {
 	sessionID := uuid.New().String()
 
 	if _, err := rdb.HSet(ctx, createSessionHashKey(sessionID), s).Result(); err != nil {
-		log.Fatalf("failed to create an auth session %s", err)
+		log.Fatalf("failed to add an auth session %s", err)
 		return "", err
 	}
 
