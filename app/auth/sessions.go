@@ -1,20 +1,13 @@
 package auth
 
-// Role 0.3.0
 type Role string
 
 const (
-	// Unknown 0.3.0
 	Unknown Role = "Unknown"
-
-	// User 0.3.0
-	User Role = "User"
-
-	// Admin 0.3.0
-	Admin Role = "Admin"
+	User    Role = "User"
+	Admin   Role = "Admin"
 )
 
-// NewRoleFromString 0.3.0
 func NewRoleFromString(s string) (Role, error) {
 	switch s {
 	case string(User):
@@ -26,7 +19,6 @@ func NewRoleFromString(s string) (Role, error) {
 	}
 }
 
-// IsValid 0.3.0
 func (r Role) IsValid() bool {
 	switch r {
 	case User, Admin:
@@ -36,7 +28,6 @@ func (r Role) IsValid() bool {
 	return false
 }
 
-// Session 0.3.0
 type Session struct {
 	UserID        string `redis:"userID"`
 	Username      string `redis:"username"`
@@ -44,7 +35,6 @@ type Session struct {
 	IsBlacklisted bool   `redis:"isBlacklisted"`
 }
 
-// NewSession 0.3.0
 func NewSession(userID string, username string, userRole string, isBlacklisted bool) (Session, error) {
 	role, err := NewRoleFromString(userRole)
 	if err != nil {
