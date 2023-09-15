@@ -17,7 +17,7 @@ func TestAddAndGetFromSessionStore(t *testing.T) {
 	clearSessionStore(ctx)
 
 	s1 := &auth.Session{
-		UserID:        "id",
+		UserID:        "id1",
 		Username:      "ivan",
 		UserRole:      "User",
 		IsBlacklisted: false,
