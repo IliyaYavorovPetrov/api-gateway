@@ -7,8 +7,9 @@ import (
 )
 
 func Middleware(next http.Handler) http.Handler {
+	// TODO: move all middlewares to their own package
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.Background()
+		ctx := context.WithValue(r.Context(), "IsAuthNeeded", false)
 
 		log.Println("routing")
 		rri, err := GetRoutingCfgFromMethodHTTPSourceURL(ctx, r.Method, r.Host)
@@ -17,8 +18,10 @@ func Middleware(next http.Handler) http.Handler {
 		}
 
 		r.Host = rri.DestinationURL
-		log.Println(r.Host)
+		if (rri.IsAuthNeeded) {
+			ctx = context.WithValue(r.Context(), "IsAuthNeeded", true)
+		}
 
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
