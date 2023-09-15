@@ -7,7 +7,8 @@ import (
 
 func Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println(r.RequestURI)
+		log.Println(r.Host)
+
 		next.ServeHTTP(w, r)
 	})
 }

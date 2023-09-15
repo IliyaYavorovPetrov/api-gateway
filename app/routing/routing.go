@@ -2,9 +2,10 @@ package routing
 
 import (
 	"context"
-	"github.com/redis/go-redis/v9"
 	"log"
 	"strings"
+
+	"github.com/redis/go-redis/v9"
 )
 
 var rdb = redis.NewClient(&redis.Options{
@@ -53,14 +54,23 @@ func AddToRoutingCfgStore(ctx context.Context, rri *ReqRoutingInfo) (string, err
 	return createRequestKey(rri.MethodHTTP, rri.SourceURL), nil
 }
 
-func GetRoutingCfgFromMethodHTTPSourceURL(ctx context.Context, methodHTTP string, sourceURL string) (*ReqRoutingInfo, error) {
-	var rri ReqRoutingInfo
-	err := rdb.HGetAll(ctx, createRoutingCfgHashKey(methodHTTP, sourceURL)).Scan(&rri)
+func GetRoutingCfgFromMethodHTTPSourceURL(ctx context.Context, methodHTTP string, sourceURL string) (ReqRoutingInfo, error) {
+	rri, err := GetRoutingCfgFromRequestKey(ctx, createRoutingCfgHashKey(methodHTTP, sourceURL))
 	if err != nil {
-		return nil, err
+		return ReqRoutingInfo{}, err
 	}
 
-	return &rri, nil
+	return rri, nil
+}
+
+func GetRoutingCfgFromRequestKey(ctx context.Context, requestKey string) (ReqRoutingInfo, error) {
+	var rri ReqRoutingInfo
+	err := rdb.HGetAll(ctx, requestKey).Scan(&rri)
+	if err != nil {
+		return ReqRoutingInfo{}, err
+	}
+
+	return rri, nil
 }
 
 func GetAllRoutingCfgs(ctx context.Context) ([]string, error) {

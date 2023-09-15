@@ -10,15 +10,15 @@ func Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.Background()
 
+		log.Println("routing")
 		rri, err := GetRoutingCfgFromMethodHTTPSourceURL(ctx, r.Method, r.Host)
 		if err != nil {
 			log.Fatalf("no such request in the routing configuration")
 		}
 
 		r.Host = rri.DestinationURL
+		log.Println(r.Host)
 
-		if rri.IsAuthNeeded {
-			next.ServeHTTP(w, r)
-		}
+		next.ServeHTTP(w, r)
 	})
 }
