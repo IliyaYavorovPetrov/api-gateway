@@ -15,7 +15,7 @@ var rdb = redis.NewClient(&redis.Options{
 	DB:       0,
 })
 
-var prefixAuthSession string = "auth:session:"
+var prefixAuthSession = "auth:session:"
 
 func createSessionHashKey(sessionID string) string {
 	return prefixAuthSession + sessionID
