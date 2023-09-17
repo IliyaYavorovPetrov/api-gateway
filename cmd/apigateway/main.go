@@ -5,11 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/IliyaYavorovPetrov/api-gateway/app/auth"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/logger"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/ratelimitting"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/middleware"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/routing"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/transform"
 	"github.com/gorilla/mux"
 )
 
@@ -22,11 +19,11 @@ func main() {
 	apiRoutes.HandleFunc("/{path:.*}", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("[ %s ] %s%s\n %v", r.Method, r.Host, r.URL.Path, r.Header)
 	})
-	apiRoutes.Use(routing.Middleware)
-	apiRoutes.Use(auth.Middleware)
-	apiRoutes.Use(ratelimitting.Middleware)
-	apiRoutes.Use(logger.Middleware)
-	apiRoutes.Use(transform.Middleware)
+	apiRoutes.Use(middleware.Routing)
+	apiRoutes.Use(middleware.Auth)
+	apiRoutes.Use(middleware.RateLimitting)
+	apiRoutes.Use(middleware.Logger)
+	apiRoutes.Use(middleware.Transform)
 
 	adminRoutes.HandleFunc("/routing/configuration/all", routing.GetAllRoutingCfgHandler).Methods(http.MethodGet)
 	adminRoutes.HandleFunc("/routing/configuration", routing.AddRoutingCfgHandler).Methods(http.MethodPost)
