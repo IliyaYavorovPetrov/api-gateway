@@ -86,7 +86,21 @@ func GetAllRoutingCfgs(ctx context.Context) ([]string, error) {
 	return rri, nil
 }
 
-func ClearRoutingCfgStore(ctx context.Context) {
-	// TODO: Delete by pattern
-	rdb.FlushAll(ctx)
+func ClearRoutingCfgStore(ctx context.Context) error {
+	routingCfgs, err := GetAllRoutingCfgs(ctx);
+	if err != nil {
+		return err
+	}
+
+	pipe := rdb.Pipeline()
+	for _, routingCfg := range routingCfgs {
+		pipe.Del(ctx, routingCfg)
+	}
+
+	_, err = pipe.Exec(ctx)
+	if err != nil {
+		return err
+	}
+	
+	return nil;
 }

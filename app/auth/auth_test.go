@@ -80,7 +80,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	}
 
 	for _, str := range allSessionIDs {
-		sID, err := auth.GetSessionIDFromSessionHashKey(str)
+		sID, err := auth.ExtractSessionIDFromSessionHashKey(str)
 		if err != nil {
 			t.Errorf("%v", err)
 		}
