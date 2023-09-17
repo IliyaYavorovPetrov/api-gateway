@@ -6,7 +6,7 @@ import (
 
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isAuthNeeded, stat := r.Context().Value("IsAuthNeeded").(bool)
+		isAuthNeeded, stat := r.Context().Value(MiddlewareContextKey(IsAuthNeededKey)).(bool)
 		if !stat {
             http.Error(w, "custom data not found", http.StatusInternalServerError)
             return
