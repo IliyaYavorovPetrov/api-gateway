@@ -17,7 +17,7 @@ func TestAddAndGetFromSessionStore(t *testing.T) {
 	clearSessionStore(ctx)
 
 	s1 := &auth.Session{
-		UserID:        "id",
+		UserID:        "id1",
 		Username:      "ivan",
 		UserRole:      "User",
 		IsBlacklisted: false,
@@ -80,7 +80,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	}
 
 	for _, str := range allSessionIDs {
-		sID, err := auth.GetSessionIDFromSessionHashKey(str)
+		sID, err := auth.ExtractSessionIDFromSessionHashKey(str)
 		if err != nil {
 			t.Errorf("%v", err)
 		}

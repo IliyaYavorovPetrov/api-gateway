@@ -15,13 +15,13 @@ var rdb = redis.NewClient(&redis.Options{
 	DB:       0,
 })
 
-var prefixAuthSession string = "auth:session:"
+var prefixAuthSession = "auth:session:"
 
 func createSessionHashKey(sessionID string) string {
 	return prefixAuthSession + sessionID
 }
 
-func GetSessionIDFromSessionHashKey(s string) (string, error) {
+func ExtractSessionIDFromSessionHashKey(s string) (string, error) {
 	if strings.HasPrefix(s, prefixAuthSession) {
 		return s[len(prefixAuthSession):], nil
 	}
@@ -81,7 +81,21 @@ func RemoveSessionFromSessionStore(ctx context.Context, sessionID string) error 
 	return nil
 }
 
-func ClearSessionStore(ctx context.Context) {
-	// TODO: Delete by pattern
-	rdb.FlushAll(ctx)
+func ClearSessionStore(ctx context.Context) error {
+	sessionIDs, err := GetAllSessionIDs(ctx);
+	if err != nil {
+		return err
+	}
+
+	pipe := rdb.Pipeline()
+	for _, sessionID := range sessionIDs {
+		pipe.Del(ctx, sessionID)
+	}
+
+	_, err = pipe.Exec(ctx)
+	if err != nil {
+		return err
+	}
+	
+	return nil;
 }

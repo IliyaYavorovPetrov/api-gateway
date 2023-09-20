@@ -29,10 +29,10 @@ func (r Role) IsValid() bool {
 }
 
 type Session struct {
-	UserID        string `redis:"userID"`
-	Username      string `redis:"username"`
-	UserRole      string `redis:"userRole"`
-	IsBlacklisted bool   `redis:"isBlacklisted"`
+	UserID        string `redis:"userID" json:"userID"`
+	Username      string `redis:"username" json:"username"`
+	UserRole      string `redis:"userRole" json:"userRole"`
+	IsBlacklisted bool   `redis:"isBlacklisted" json:"isBlacklisted"`
 }
 
 func NewSession(userID string, username string, userRole string, isBlacklisted bool) (Session, error) {
