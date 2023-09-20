@@ -1,9 +1,9 @@
 package gateways
 
 type Cache interface {
-	Get(key string) (string, bool)
-	Set(key string, val string)
-	GetAll(key string) []string
+	Get(key string) (interface{}, bool)
+	Set(key string, val interface{})
+	GetAll(key string) []interface{}
 	Delete(key string)
 	Flush()
 }

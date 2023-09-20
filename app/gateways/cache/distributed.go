@@ -21,15 +21,15 @@ type GatewayLocal struct {
 	cache *redis.Client
 }
 
-func (gw *GatewayLocal) Get(key string) (string, bool) {
+func (gw *GatewayLocal) Get(key string) (interface{}, bool) {
 	return "", true
 }
 
-func (gw *GatewayLocal) Set(key string, val string) {
+func (gw *GatewayLocal) Set(key string, val interface{}) {
 }
 
-func (gw *GatewayLocal) GetAll(key string) []string {
-	var results []string
+func (gw *GatewayLocal) GetAll(key string) []interface{} {
+	var results []interface{}
 	return results
 }
 

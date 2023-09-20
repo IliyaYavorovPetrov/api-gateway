@@ -17,7 +17,7 @@ type Gateway struct {
 	cache *cache.Cache
 }
 
-func (gw *Gateway) Get(key string) (string, bool) {
+func (gw *Gateway) Get(key string) (interface{}, bool) {
 	val, isFound := gw.cache.Get(key)
 	if !isFound {
 		return "", false
@@ -31,15 +31,15 @@ func (gw *Gateway) Get(key string) (string, bool) {
 	return strVal, true
 }
 
-func (gw *Gateway) Set(key string, val string) {
+func (gw *Gateway) Set(key string, val interface{}) {
 	gw.cache.Set(key, val, cache.DefaultExpiration)
 }
 
-func (gw *Gateway) GetAll(key string) []string {
-	var results []string
+func (gw *Gateway) GetAll(key string) []interface{} {
+	var results []interface{}
 
 	for _, item := range gw.cache.Items() {
-		results = append(results, item.Object.(string))
+		results = append(results, item.Object)
 	}
 
 	return results
