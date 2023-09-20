@@ -5,8 +5,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func NewDistributedCache() *GatewayLocal {
-	return &GatewayLocal{
+func NewDistributedCache() *GatewayDistributed {
+	return &GatewayDistributed{
 		cache: redis.NewClient(&redis.Options{
 			Addr:     "localhost:6379",
 			Password: "",
@@ -15,26 +15,26 @@ func NewDistributedCache() *GatewayLocal {
 	}
 }
 
-var _ gateways.Cache = (*GatewayLocal)(nil)
+var _ gateways.Cache = (*GatewayDistributed)(nil)
 
-type GatewayLocal struct {
+type GatewayDistributed struct {
 	cache *redis.Client
 }
 
-func (gw *GatewayLocal) Get(key string) (interface{}, bool) {
+func (gw *GatewayDistributed) Get(key string) (interface{}, bool) {
 	return "", true
 }
 
-func (gw *GatewayLocal) Set(key string, val interface{}) {
+func (gw *GatewayDistributed) Set(key string, val interface{}) {
 }
 
-func (gw *GatewayLocal) GetAll(key string) []interface{} {
+func (gw *GatewayDistributed) GetAll(key string) []interface{} {
 	var results []interface{}
 	return results
 }
 
-func (gw *GatewayLocal) Delete(key string) {
+func (gw *GatewayDistributed) Delete(key string) {
 }
 
-func (gw *GatewayLocal) Flush() {
+func (gw *GatewayDistributed) Flush() {
 }

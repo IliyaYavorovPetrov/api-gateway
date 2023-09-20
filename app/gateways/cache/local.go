@@ -5,19 +5,19 @@ import (
 	"github.com/patrickmn/go-cache"
 )
 
-func NewLocalCache() *Gateway {
-	return &Gateway{
+func NewLocalCache() *GatewayLocal {
+	return &GatewayLocal{
 		cache: cache.New(cache.NoExpiration, cache.NoExpiration),
 	}
 }
 
-var _ gateways.Cache = (*Gateway)(nil)
+var _ gateways.Cache = (*GatewayLocal)(nil)
 
-type Gateway struct {
+type GatewayLocal struct {
 	cache *cache.Cache
 }
 
-func (gw *Gateway) Get(key string) (interface{}, bool) {
+func (gw *GatewayLocal) Get(key string) (interface{}, bool) {
 	val, isFound := gw.cache.Get(key)
 	if !isFound {
 		return "", false
@@ -31,11 +31,11 @@ func (gw *Gateway) Get(key string) (interface{}, bool) {
 	return strVal, true
 }
 
-func (gw *Gateway) Set(key string, val interface{}) {
+func (gw *GatewayLocal) Set(key string, val interface{}) {
 	gw.cache.Set(key, val, cache.DefaultExpiration)
 }
 
-func (gw *Gateway) GetAll(key string) []interface{} {
+func (gw *GatewayLocal) GetAll(key string) []interface{} {
 	var results []interface{}
 
 	for _, item := range gw.cache.Items() {
@@ -45,10 +45,10 @@ func (gw *Gateway) GetAll(key string) []interface{} {
 	return results
 }
 
-func (gw *Gateway) Delete(key string) {
+func (gw *GatewayLocal) Delete(key string) {
 	gw.cache.Delete(key)
 }
 
-func (gw *Gateway) Flush() {
+func (gw *GatewayLocal) Flush() {
 	gw.cache.Flush()
 }
