@@ -1,18 +1,21 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 )
 
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isAuthNeeded, stat := r.Context().Value(MiddlewareContextKey(IsAuthNeededKey)).(bool)
-		if !stat {
-            http.Error(w, "custom data not found", http.StatusInternalServerError)
-            return
-        }
+		isAuthNeeded, ok := r.Context().Value(MiddlewareContextKey(IsAuthNeededKey)).(bool)
+		if !ok {
+			http.Error(w, "custom data not found", http.StatusInternalServerError)
+			return
+		}
 
-		println(isAuthNeeded)
+		if isAuthNeeded {
+			fmt.Println("do sth")
+		}
 
 		next.ServeHTTP(w, r)
 	})
