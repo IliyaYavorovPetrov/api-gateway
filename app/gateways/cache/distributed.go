@@ -33,7 +33,12 @@ func (gw *GatewayDistributed) Get(ctx context.Context, key string) (interface{},
 	return "", nil
 }
 
-func (gw *GatewayDistributed) Set(ctx context.Context, key string, val interface{}) {
+func (gw *GatewayDistributed) Add(ctx context.Context, key string, val interface{}) error {
+	if _, err := gw.cache.HSet(ctx, key, val).Result(); err != nil {
+		return ErrFailedToAdd
+	}
+
+	return nil
 }
 
 func (gw *GatewayDistributed) GetAll(ctx context.Context, key string) []interface{} {

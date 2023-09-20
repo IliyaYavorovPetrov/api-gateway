@@ -33,8 +33,9 @@ func (gw *GatewayLocal) Get(ctx context.Context, key string) (interface{}, error
 	return strVal, nil
 }
 
-func (gw *GatewayLocal) Set(ctx context.Context, key string, val interface{}) {
+func (gw *GatewayLocal) Add(ctx context.Context, key string, val interface{}) error {
 	gw.cache.Set(key, val, cache.DefaultExpiration)
+	return nil
 }
 
 func (gw *GatewayLocal) GetAll(ctx context.Context, key string) []interface{} {
