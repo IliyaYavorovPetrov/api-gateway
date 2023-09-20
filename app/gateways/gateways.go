@@ -1,9 +1,11 @@
 package gateways
 
+import "context"
+
 type Cache interface {
-	Get(key string) (interface{}, bool)
-	Set(key string, val interface{})
-	GetAll(key string) []interface{}
-	Delete(key string)
-	Flush()
+	Get(ctx context.Context, key string) (interface{}, error)
+	Add(ctx context.Context, key string, val interface{}) error
+	GetAll(ctx context.Context, key string) []interface{}
+	Delete(ctx context.Context, key string)
+	Flush(ctx context.Context)
 }

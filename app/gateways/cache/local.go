@@ -1,6 +1,8 @@
 package cache
 
 import (
+	"context"
+
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"github.com/patrickmn/go-cache"
 )
@@ -17,25 +19,25 @@ type GatewayLocal struct {
 	cache *cache.Cache
 }
 
-func (gw *GatewayLocal) Get(key string) (interface{}, bool) {
+func (gw *GatewayLocal) Get(ctx context.Context, key string) (interface{}, error) {
 	val, isFound := gw.cache.Get(key)
 	if !isFound {
-		return "", false
+		return "", ErrNotFoundKey
 	}
 
 	strVal, isStr := val.(string)
 	if !isStr {
-		return "", false
+		return "", ErrNotFoundKey
 	}
 
-	return strVal, true
+	return strVal, nil
 }
 
-func (gw *GatewayLocal) Set(key string, val interface{}) {
+func (gw *GatewayLocal) Set(ctx context.Context, key string, val interface{}) {
 	gw.cache.Set(key, val, cache.DefaultExpiration)
 }
 
-func (gw *GatewayLocal) GetAll(key string) []interface{} {
+func (gw *GatewayLocal) GetAll(ctx context.Context, key string) []interface{} {
 	var results []interface{}
 
 	for _, item := range gw.cache.Items() {
@@ -45,10 +47,10 @@ func (gw *GatewayLocal) GetAll(key string) []interface{} {
 	return results
 }
 
-func (gw *GatewayLocal) Delete(key string) {
+func (gw *GatewayLocal) Delete(ctx context.Context, key string) {
 	gw.cache.Delete(key)
 }
 
-func (gw *GatewayLocal) Flush() {
+func (gw *GatewayLocal) Flush(ctx context.Context) {
 	gw.cache.Flush()
 }
