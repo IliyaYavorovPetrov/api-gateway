@@ -34,13 +34,13 @@ func GetInstance() *Gateway {
 }
 
 func (gw *Gateway) Get(ctx context.Context, key string) (interface{}, error) {
-	var obj interface{}
-	err := gw.cache.HGetAll(ctx, key).Scan(&obj)
+	var val interface{}
+	err := gw.cache.HGetAll(ctx, key).Scan(&val)
 	if err != nil {
 		return nil, cache.ErrNotFoundKey
 	}
 
-	return obj, nil
+	return val, nil
 }
 
 func (gw *Gateway) Add(ctx context.Context, key string, val interface{}) error {
@@ -51,9 +51,9 @@ func (gw *Gateway) Add(ctx context.Context, key string, val interface{}) error {
 	return nil
 }
 
-func (gw *Gateway) GetAllKeysByPattern(ctx context.Context, pattern string) ([]interface{}, error) {
-	var results []interface{}
-	iter := gw.cache.Scan(ctx, 0, pattern, 0).Iterator()
+func (gw *Gateway) GetAllKeysByPrefix(ctx context.Context, prefix string) ([]string, error) {
+	var results []string
+	iter := gw.cache.Scan(ctx, 0, prefix, 0).Iterator()
 	for iter.Next(ctx) {
 		results = append(results, iter.Val())
 	}
