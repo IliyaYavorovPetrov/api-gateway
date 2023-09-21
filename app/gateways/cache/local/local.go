@@ -16,16 +16,16 @@ type Gateway struct {
 var _ gateways.Cache = (*Gateway)(nil)
 var instance *Gateway
 
+func init() {
+	instance = createInstance()
+}
+
 func createInstance() *Gateway {
 	c := icache.New[interface{}]()
 
 	return &Gateway{
 		cache: &c,
 	}
-}
-
-func init() {
-	instance = createInstance()
 }
 
 func GetInstance() *Gateway {

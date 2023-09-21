@@ -15,6 +15,10 @@ type Gateway struct {
 var _ gateways.Cache = (*Gateway)(nil)
 var instance *Gateway
 
+func init() {
+	instance = createInstance()
+}
+
 func createInstance() *Gateway {
 	return &Gateway{
 		cache: icache.NewClient(&icache.Options{
@@ -23,10 +27,6 @@ func createInstance() *Gateway {
 			DB:       0,
 		}),
 	}
-}
-
-func init() {
-	instance = createInstance()
 }
 
 func GetInstance() *Gateway {
