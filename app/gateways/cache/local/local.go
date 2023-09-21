@@ -48,20 +48,17 @@ func (gw *Gateway) Add(ctx context.Context, key string, val interface{}) error {
 	return nil
 }
 
-func (gw *Gateway) GetAll(ctx context.Context, key string) []interface{} {
+func (gw *Gateway) GetAllKeysByPattern(ctx context.Context, pattern string) ([]interface{}, error) {
 	var results []interface{}
-
-	for _, item := range gw.cache.Items() {
-		results = append(results, item.Object)
-	}
-
-	return results
+	return results, nil
 }
 
-func (gw *Gateway) Delete(ctx context.Context, key string) {
+func (gw *Gateway) Delete(ctx context.Context, key string) error {
 	gw.cache.Delete(key)
+	return nil
 }
 
-func (gw *Gateway) Flush(ctx context.Context) {
+func (gw *Gateway) Flush(ctx context.Context) error{
 	gw.cache.Flush()
+	return nil
 }
