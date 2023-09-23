@@ -46,6 +46,14 @@ func (gw *Gateway) Add(ctx context.Context, key string, val interface{}) error {
 	return nil
 }
 
+func (gw *Gateway) AddAllItems(ctx context.Context, other map[string]interface{}) error {
+	for key, val := range other {
+		gw.cache.Set(key, val)
+	}
+
+	return nil
+}
+
 func (gw *Gateway) GetAllKeysByPrefix(ctx context.Context, prefix string) ([]string, error) {
 	var results []string
 	keys := gw.cache.Keys()
@@ -56,6 +64,11 @@ func (gw *Gateway) GetAllKeysByPrefix(ctx context.Context, prefix string) ([]str
 	}
 
 	return results, nil
+}
+
+func (gw *Gateway) GetAllItems(ctx context.Context) (map[string]interface{}, error) {
+	items := gw.cache.Items()
+	return items, nil
 }
 
 func (gw *Gateway) Delete(ctx context.Context, key string) error {

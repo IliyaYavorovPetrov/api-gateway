@@ -2,6 +2,7 @@ package distributed
 
 import (
 	"context"
+	"log"
 
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache"
@@ -51,6 +52,23 @@ func (gw *Gateway) Add(ctx context.Context, key string, val interface{}) error {
 	return nil
 }
 
+func (gw *Gateway) AddAllItems(ctx context.Context, other map[string]interface{}) error {
+	_, err := gw.cache.Pipelined(ctx, func(pipe icache.Pipeliner) error {
+		for key, val := range other {
+			pipe.Set(ctx, key, val, -1)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		log.Println("failed to execute the pipe")
+		return err
+	}
+
+	return nil
+}
+
 func (gw *Gateway) GetAllKeysByPrefix(ctx context.Context, prefix string) ([]string, error) {
 	var results []string
 	iter := gw.cache.Scan(ctx, 0, prefix, 0).Iterator()
@@ -62,6 +80,31 @@ func (gw *Gateway) GetAllKeysByPrefix(ctx context.Context, prefix string) ([]str
 	}
 
 	return results, nil
+}
+
+func (gw *Gateway) GetAllItems(ctx context.Context) (map[string]interface{}, error) {
+	keys, err := gw.GetAllKeysByPrefix(ctx, "*")
+	if err != nil {
+		return nil, err
+	}
+
+	items := make(map[string]interface{})
+
+	cmds, err := gw.cache.Pipelined(ctx, func(pipe icache.Pipeliner) error {
+		for _, key := range keys {
+			pipe.Get(ctx, key)
+		}
+
+		return nil
+	})
+	if err != nil {
+		log.Println("failed to execute the pipe")
+		return nil, err
+	}
+
+	items = cmds[0].(*icache.MapStringInterfaceCmd).Val()
+
+	return items, nil
 }
 
 func (gw *Gateway) Delete(ctx context.Context, key string) error {
