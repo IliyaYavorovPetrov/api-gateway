@@ -3,12 +3,16 @@ package routing_test
 import (
 	"context"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/routing"
+	"log"
 	"reflect"
 	"testing"
 )
 
 func clearSessionStore(ctx context.Context) {
-	routing.ClearRoutingCfgStore(ctx)
+	err := routing.ClearRoutingCfgStore(ctx)
+	if err != nil {
+		log.Fatal("could not clear session store")
+	}
 }
 
 func TestAddAndGetFromRoutingCfgStore(t *testing.T) {

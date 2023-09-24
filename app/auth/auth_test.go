@@ -2,6 +2,7 @@ package auth_test
 
 import (
 	"context"
+	"log"
 	"reflect"
 	"testing"
 
@@ -9,7 +10,10 @@ import (
 )
 
 func clearSessionStore(ctx context.Context) {
-	auth.ClearSessionStore(ctx)
+	err := auth.ClearSessionStore(ctx)
+	if err != nil {
+		log.Fatal("could not clear session store")
+	}
 }
 
 func TestAddAndGetFromSessionStore(t *testing.T) {
