@@ -3,6 +3,7 @@ package distributed_test
 import (
 	"context"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/distributed"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
 	"github.com/IliyaYavorovPetrov/api-gateway/test"
 	"testing"
 )
@@ -12,13 +13,14 @@ func TestAddAndGet(t *testing.T) {
 	cache := distributed.GetInstance()
 
 	key := "key1"
-	val := test.ItemTest{
-		ID:      1,
-		Content: "content 1",
-		Size:    45.67,
+	rri := routing.ReqRoutingInfo{
+		SourceURL:      "https://src/1",
+		DestinationURL: "http://dest/1",
+		MethodHTTP:     "GET",
+		IsAuthNeeded:   false,
 	}
 
-	err := cache.Add(test.GetCtx(), key, val)
+	err := cache.Add(test.GetCtx(), key, rri)
 	if err != nil {
 		t.Errorf("Add failed: %v", err)
 	}
@@ -27,8 +29,8 @@ func TestAddAndGet(t *testing.T) {
 	if err != nil {
 		t.Errorf("Get failed: %v", err)
 	}
-	if res != val {
-		t.Errorf("expected %s, but got %s", test.ToString(val), res)
+	if res != rri {
+		t.Errorf("expected %s, but got %s", rri.ToString(), res)
 	}
 }
 
@@ -37,15 +39,17 @@ func TestAddAllItems(t *testing.T) {
 	cache := distributed.GetInstance()
 
 	data := map[string]interface{}{
-		"key1": test.ItemTest{
-			ID:      1,
-			Content: "content 1",
-			Size:    45.67,
+		"key1": routing.ReqRoutingInfo{
+			SourceURL:      "https://src/1",
+			DestinationURL: "http://dest/1",
+			MethodHTTP:     "GET",
+			IsAuthNeeded:   false,
 		},
-		"key2": test.ItemTest{
-			ID:      2,
-			Content: "content 2",
-			Size:    23.02,
+		"key2": routing.ReqRoutingInfo{
+			SourceURL:      "https://src/2",
+			DestinationURL: "http://dest/2",
+			MethodHTTP:     "GET",
+			IsAuthNeeded:   false,
 		},
 	}
 
@@ -70,20 +74,23 @@ func TestGetAllKeysByPrefix(t *testing.T) {
 	cache := distributed.GetInstance()
 
 	data := map[string]interface{}{
-		"test:key:key1": test.ItemTest{
-			ID:      1,
-			Content: "content 1",
-			Size:    45.67,
+		"test:key:key1": routing.ReqRoutingInfo{
+			SourceURL:      "https://src/1",
+			DestinationURL: "http://dest/1",
+			MethodHTTP:     "GET",
+			IsAuthNeeded:   false,
 		},
-		"test:key:key2": test.ItemTest{
-			ID:      2,
-			Content: "content 2",
-			Size:    23.02,
+		"test:key:key2": routing.ReqRoutingInfo{
+			SourceURL:      "https://src/2",
+			DestinationURL: "http://dest/2",
+			MethodHTTP:     "GET",
+			IsAuthNeeded:   false,
 		},
-		"wrong:key:key2": test.ItemTest{
-			ID:      3,
-			Content: "content 3",
-			Size:    173.87,
+		"wrong:key:key2": routing.ReqRoutingInfo{
+			SourceURL:      "https://src/3",
+			DestinationURL: "http://dest/3",
+			MethodHTTP:     "GET",
+			IsAuthNeeded:   false,
 		},
 	}
 
@@ -111,15 +118,17 @@ func TestGetAllItems(t *testing.T) {
 	cache := distributed.GetInstance()
 
 	data := map[string]interface{}{
-		"test:key:key1": test.ItemTest{
-			ID:      1,
-			Content: "content 1",
-			Size:    45.67,
+		"test:key:key1": routing.ReqRoutingInfo{
+			SourceURL:      "https://src/1",
+			DestinationURL: "http://dest/1",
+			MethodHTTP:     "GET",
+			IsAuthNeeded:   false,
 		},
-		"test:key:key2": test.ItemTest{
-			ID:      2,
-			Content: "content 2",
-			Size:    23.02,
+		"test:key:key2": routing.ReqRoutingInfo{
+			SourceURL:      "https://src/2",
+			DestinationURL: "http://dest/2",
+			MethodHTTP:     "GET",
+			IsAuthNeeded:   false,
 		},
 	}
 
@@ -143,15 +152,17 @@ func TestDelete(t *testing.T) {
 	cache := distributed.GetInstance()
 
 	data := map[string]interface{}{
-		"test:key:key1": test.ItemTest{
-			ID:      1,
-			Content: "content 1",
-			Size:    45.67,
+		"test:key:key1": routing.ReqRoutingInfo{
+			SourceURL:      "https://src/1",
+			DestinationURL: "http://dest/1",
+			MethodHTTP:     "GET",
+			IsAuthNeeded:   false,
 		},
-		"test:key:key2": test.ItemTest{
-			ID:      2,
-			Content: "content 2",
-			Size:    23.02,
+		"test:key:key2": routing.ReqRoutingInfo{
+			SourceURL:      "https://src/2",
+			DestinationURL: "http://dest/2",
+			MethodHTTP:     "GET",
+			IsAuthNeeded:   false,
 		},
 	}
 
