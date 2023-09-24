@@ -2,6 +2,8 @@ package gateways
 
 import "context"
 
+// TODO: Make the interface with generics https://stackoverflow.com/questions/71132124/how-to-solve-interface-method-must-have-no-type-parameters
+
 type Cache interface {
 	Get(ctx context.Context, key string) (interface{}, error)
 	Add(ctx context.Context, key string, val interface{}) error
