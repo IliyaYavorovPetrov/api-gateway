@@ -10,7 +10,7 @@ import (
 
 func TestAddAndGet(t *testing.T) {
 	test.ClearLocalCache()
-	gw := local.GetInstance()
+	cache := local.GetInstance()
 
 	key := "key1"
 	val := test.ItemTest{
@@ -19,12 +19,12 @@ func TestAddAndGet(t *testing.T) {
 		Size:    45.67,
 	}
 
-	err := gw.Add(test.GetCtx(), key, val)
+	err := cache.Add(test.GetCtx(), key, val)
 	if err != nil {
 		t.Errorf("Add failed: %v", err)
 	}
 
-	res, err := gw.Get(test.GetCtx(), key)
+	res, err := cache.Get(test.GetCtx(), key)
 	if err != nil {
 		t.Errorf("Get failed: %v", err)
 	}
@@ -34,8 +34,8 @@ func TestAddAndGet(t *testing.T) {
 }
 
 func TestAddAllItems(t *testing.T) {
-	gw := local.GetInstance()
 	test.ClearLocalCache()
+	cache := local.GetInstance()
 
 	data := map[string]interface{}{
 		"key1": test.ItemTest{
@@ -50,13 +50,13 @@ func TestAddAllItems(t *testing.T) {
 		},
 	}
 
-	err := gw.AddAllItems(context.Background(), data)
+	err := cache.AddAllItems(context.Background(), data)
 	if err != nil {
 		t.Errorf("AddAllItems failed: %v", err)
 	}
 
 	for key, val := range data {
-		res, err := gw.Get(test.GetCtx(), key)
+		res, err := cache.Get(test.GetCtx(), key)
 		if err != nil {
 			t.Errorf("Get failed: %v", err)
 		}
@@ -67,8 +67,8 @@ func TestAddAllItems(t *testing.T) {
 }
 
 func TestGetAllKeysByPrefix(t *testing.T) {
-	gw := local.GetInstance()
 	test.ClearLocalCache()
+	cache := local.GetInstance()
 
 	data := map[string]interface{}{
 		"test:key:key1": test.ItemTest{
@@ -88,13 +88,13 @@ func TestGetAllKeysByPrefix(t *testing.T) {
 		},
 	}
 
-	err := gw.AddAllItems(test.GetCtx(), data)
+	err := cache.AddAllItems(test.GetCtx(), data)
 	if err != nil {
 		t.Errorf("AddAllItems failed: %v", err)
 	}
 
 	prefix := "test:key:"
-	keys, err := gw.GetAllKeysByPrefix(test.GetCtx(), prefix)
+	keys, err := cache.GetAllKeysByPrefix(test.GetCtx(), prefix)
 	if err != nil {
 		t.Errorf("GetAllKeysByPrefix failed: %v", err)
 	}
@@ -108,8 +108,8 @@ func TestGetAllKeysByPrefix(t *testing.T) {
 }
 
 func TestGetAllItems(t *testing.T) {
-	gw := local.GetInstance()
 	test.ClearLocalCache()
+	cache := local.GetInstance()
 
 	data := map[string]interface{}{
 		"test:key:key1": test.ItemTest{
@@ -124,12 +124,12 @@ func TestGetAllItems(t *testing.T) {
 		},
 	}
 
-	err := gw.AddAllItems(test.GetCtx(), data)
+	err := cache.AddAllItems(test.GetCtx(), data)
 	if err != nil {
 		t.Errorf("AddAllItems failed: %v", err)
 	}
 
-	items, err := gw.GetAllItems(test.GetCtx())
+	items, err := cache.GetAllItems(test.GetCtx())
 	if err != nil {
 		t.Errorf("GetAllItems failed: %v", err)
 	}
@@ -140,8 +140,8 @@ func TestGetAllItems(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	gw := local.GetInstance()
 	test.ClearLocalCache()
+	cache := local.GetInstance()
 
 	data := map[string]interface{}{
 		"test:key:key1": test.ItemTest{
@@ -158,17 +158,17 @@ func TestDelete(t *testing.T) {
 
 	delKey := "test:key:key1"
 
-	err := gw.AddAllItems(test.GetCtx(), data)
+	err := cache.AddAllItems(test.GetCtx(), data)
 	if err != nil {
 		t.Errorf("AddAllItems failed: %v", err)
 	}
 
-	err = gw.Delete(test.GetCtx(), delKey)
+	err = cache.Delete(test.GetCtx(), delKey)
 	if err != nil {
 		t.Errorf("Delete failed: %v", err)
 	}
 
-	_, err = gw.Get(test.GetCtx(), delKey)
+	_, err = cache.Get(test.GetCtx(), delKey)
 	if err == nil {
 		t.Errorf("expected error for Get after deletion, but got nil")
 	}
