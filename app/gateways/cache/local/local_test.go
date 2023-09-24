@@ -9,10 +9,10 @@ import (
 )
 
 func TestAddAndGet(t *testing.T) {
-	test.ClearCaches()
+	test.ClearLocalCache()
 	gw := local.GetInstance()
 
-	key := "testKey"
+	key := "key1"
 	val := test.ItemTest{
 		ID:      1,
 		Content: "content 1",
@@ -35,7 +35,7 @@ func TestAddAndGet(t *testing.T) {
 
 func TestAddAllItems(t *testing.T) {
 	gw := local.GetInstance()
-	test.ClearCaches()
+	test.ClearLocalCache()
 
 	data := map[string]interface{}{
 		"key1": test.ItemTest{
@@ -68,7 +68,7 @@ func TestAddAllItems(t *testing.T) {
 
 func TestGetAllKeysByPrefix(t *testing.T) {
 	gw := local.GetInstance()
-	test.ClearCaches()
+	test.ClearLocalCache()
 
 	data := map[string]interface{}{
 		"test:key:key1": test.ItemTest{
@@ -109,7 +109,7 @@ func TestGetAllKeysByPrefix(t *testing.T) {
 
 func TestGetAllItems(t *testing.T) {
 	gw := local.GetInstance()
-	test.ClearCaches()
+	test.ClearLocalCache()
 
 	data := map[string]interface{}{
 		"test:key:key1": test.ItemTest{
@@ -141,7 +141,7 @@ func TestGetAllItems(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	gw := local.GetInstance()
-	test.ClearCaches()
+	test.ClearLocalCache()
 
 	data := map[string]interface{}{
 		"test:key:key1": test.ItemTest{
