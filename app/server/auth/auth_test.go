@@ -2,15 +2,14 @@ package auth_test
 
 import (
 	"context"
+	auth2 "github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
 	"log"
 	"reflect"
 	"testing"
-
-	"github.com/IliyaYavorovPetrov/api-gateway/app/auth"
 )
 
 func clearSessionStore(ctx context.Context) {
-	err := auth.ClearSessionStore(ctx)
+	err := auth2.ClearSessionStore(ctx)
 	if err != nil {
 		log.Fatal("could not clear session store")
 	}
@@ -20,19 +19,19 @@ func TestAddAndGetFromSessionStore(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	s1 := &auth.Session{
+	s1 := &auth2.Session{
 		UserID:        "id1",
 		Username:      "ivan",
 		UserRole:      "User",
 		IsBlacklisted: false,
 	}
 
-	sessionID, err := auth.AddToSessionStore(ctx, s1)
+	sessionID, err := auth2.AddToSessionStore(ctx, s1)
 	if err != nil {
 		t.Fatalf("AddToSessionStore failed: %v", err)
 	}
 
-	s2, err := auth.GetSessionFromSessionID(ctx, sessionID)
+	s2, err := auth2.GetSessionFromSessionID(ctx, sessionID)
 	if err != nil {
 		t.Fatalf("GetSessionFromSessionID failed: %v", err)
 	}
@@ -46,26 +45,26 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	s1 := &auth.Session{
+	s1 := &auth2.Session{
 		UserID:        "id1",
 		Username:      "ivan",
 		UserRole:      "User",
 		IsBlacklisted: false,
 	}
 
-	sessionID1, err := auth.AddToSessionStore(ctx, s1)
+	sessionID1, err := auth2.AddToSessionStore(ctx, s1)
 	if err != nil {
 		t.Fatalf("AddToSessionStore failed: %v", err)
 	}
 
-	s2 := &auth.Session{
+	s2 := &auth2.Session{
 		UserID:        "id2",
 		Username:      "gosho",
 		UserRole:      "Admin",
 		IsBlacklisted: false,
 	}
 
-	sessionID2, err := auth.AddToSessionStore(ctx, s2)
+	sessionID2, err := auth2.AddToSessionStore(ctx, s2)
 	if err != nil {
 		t.Fatalf("AddToSessionStore failed: %v", err)
 	}
@@ -74,7 +73,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	valuesToCheck[sessionID1] = struct{}{}
 	valuesToCheck[sessionID2] = struct{}{}
 
-	allSessionIDs, err := auth.GetAllSessionIDs(ctx)
+	allSessionIDs, err := auth2.GetAllSessionIDs(ctx)
 	if err != nil {
 		t.Fatalf("GetAllSessionIDs failed: %v", err)
 	}
@@ -84,7 +83,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	}
 
 	for _, str := range allSessionIDs {
-		sID, err := auth.ExtractSessionIDFromSessionHashKey(str)
+		sID, err := auth2.ExtractSessionIDFromSessionHashKey(str)
 		if err != nil {
 			t.Errorf("%v", err)
 		}
@@ -98,24 +97,24 @@ func TestChangeBlacklistStatusUser(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	s1 := &auth.Session{
+	s1 := &auth2.Session{
 		UserID:        "id",
 		Username:      "ivan",
 		UserRole:      "User",
 		IsBlacklisted: false,
 	}
 
-	sessionID, err := auth.AddToSessionStore(ctx, s1)
+	sessionID, err := auth2.AddToSessionStore(ctx, s1)
 	if err != nil {
 		t.Fatalf("AddToSessionStore failed: %v", err)
 	}
 
-	err = auth.ChangeBlacklistStatusOfSession(ctx, sessionID, true)
+	err = auth2.ChangeBlacklistStatusOfSession(ctx, sessionID, true)
 	if err != nil {
 		t.Fatalf("ChangeBlacklistStatusOfSession failed: %v", err)
 	}
 
-	s2, err := auth.GetSessionFromSessionID(ctx, sessionID)
+	s2, err := auth2.GetSessionFromSessionID(ctx, sessionID)
 	if err != nil {
 		t.Fatalf("GetSessionFromSessionID failed: %v", err)
 	}

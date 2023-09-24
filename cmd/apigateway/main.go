@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
+	mw "github.com/IliyaYavorovPetrov/api-gateway/app/server/middleware"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
 	"log"
 	"net/http"
 
-	"github.com/IliyaYavorovPetrov/api-gateway/app/middleware"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/routing"
 	"github.com/gorilla/mux"
 )
 
@@ -19,11 +19,11 @@ func main() {
 	apiRoutes.HandleFunc("/{path:.*}", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("[ %s ] %s%s\n %v", r.Method, r.Host, r.URL.Path, r.Header)
 	})
-	apiRoutes.Use(middleware.Routing)
-	apiRoutes.Use(middleware.Auth)
-	apiRoutes.Use(middleware.RateLimitting)
-	apiRoutes.Use(middleware.Logger)
-	apiRoutes.Use(middleware.Transform)
+	apiRoutes.Use(mw.Routing)
+	apiRoutes.Use(mw.Auth)
+	apiRoutes.Use(mw.RateLimitting)
+	apiRoutes.Use(mw.Logger)
+	apiRoutes.Use(mw.Transform)
 
 	adminRoutes.HandleFunc("/routing/configuration/all", routing.GetAllRoutingCfgHandler).Methods(http.MethodGet)
 	adminRoutes.HandleFunc("/routing/configuration", routing.AddRoutingCfgHandler).Methods(http.MethodPost)
