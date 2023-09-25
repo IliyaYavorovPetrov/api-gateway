@@ -2,10 +2,13 @@ package distributed
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
 	icache "github.com/redis/go-redis/v9"
 )
 
@@ -35,13 +38,27 @@ func GetInstance() *Gateway {
 }
 
 func (gw *Gateway) Get(ctx context.Context, key string) (interface{}, error) {
-	var val interface{}
-	err := gw.cache.HGetAll(ctx, key).Scan(&val)
+	data, err := gw.cache.HGetAll(ctx, key).Result()
 	if err != nil {
 		return nil, cache.ErrNotFoundKey
 	}
 
-	return val, nil
+	j, err := json.Marshal(data)
+    if err != nil {
+        log.Println(err)
+    }
+
+	var rri routing.ReqRoutingInfo
+    if err := json.Unmarshal(j, &rri); err != nil {
+        return rri, nil
+    }
+
+	var session auth.Session
+    if err := json.Unmarshal(j, &session); err != nil {
+        return session, nil
+    }
+
+	return nil, cache.ErrUndefinedValueType
 }
 
 func (gw *Gateway) Add(ctx context.Context, key string, val interface{}) error {
