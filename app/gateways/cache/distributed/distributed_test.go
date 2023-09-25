@@ -111,6 +111,10 @@ func TestGetAllKeysByPrefix(t *testing.T) {
 			t.Errorf("expected to contain %v, but it did not", key)
 		}
 	}
+
+	if len(keys) != 2 {
+		t.Errorf("expected 2 elements, but got %d", len(keys))
+	}
 }
 
 func TestGetAllItems(t *testing.T) {
@@ -144,6 +148,10 @@ func TestGetAllItems(t *testing.T) {
 
 	if !test.MapEqual(items, data) {
 		t.Errorf("expected %v, but got %v", data, items)
+	}
+
+	if len(items) != 2 {
+		t.Errorf("expected 2 elements, but got %d", len(items))
 	}
 }
 
