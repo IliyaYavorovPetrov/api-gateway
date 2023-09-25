@@ -2,7 +2,7 @@ package gateways
 
 import "context"
 
-// TODO: Make the interface with generics https://stackoverflow.com/questions/71132124/how-to-solve-interface-method-must-have-no-type-parameters
+// TODO: Need separate local/distributed cache for both routing/auth
 
 type Cache interface {
 	Get(ctx context.Context, key string) (interface{}, error)
