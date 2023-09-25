@@ -32,6 +32,6 @@ func LoadCacheOneWithCacheTwo(ctx context.Context, c1 gateways.Cache, c2 gateway
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }
