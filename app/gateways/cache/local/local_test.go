@@ -9,9 +9,22 @@ import (
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/local"
 )
 
+func TestCreateInstance(t *testing.T) {
+	test.ClearDistributedCache()
+	cache := local.GetInstance("wrong-cache")
+	if cache != nil {
+		t.Errorf("expected to get a no cache, but got one")
+	}
+
+	cache = local.GetInstance("test-cache")
+	if cache == nil {
+		t.Errorf("expected to get a cache, but didn't got one")
+	}
+}
+
 func TestAddAndGet(t *testing.T) {
 	test.ClearLocalCache()
-	cache := local.GetInstance()
+	cache := local.GetInstance("test-cache")
 
 	key := "key1"
 	rri := routing.ReqRoutingInfo{
@@ -37,7 +50,7 @@ func TestAddAndGet(t *testing.T) {
 
 func TestAddAllItems(t *testing.T) {
 	test.ClearLocalCache()
-	cache := local.GetInstance()
+	cache := local.GetInstance("test-cache")
 
 	data := map[string]interface{}{
 		"key1": routing.ReqRoutingInfo{
@@ -72,7 +85,7 @@ func TestAddAllItems(t *testing.T) {
 
 func TestGetAllKeysByPrefix(t *testing.T) {
 	test.ClearLocalCache()
-	cache := local.GetInstance()
+	cache := local.GetInstance("test-cache")
 
 	data := map[string]interface{}{
 		"test:key:key1": routing.ReqRoutingInfo{
@@ -116,7 +129,7 @@ func TestGetAllKeysByPrefix(t *testing.T) {
 
 func TestGetAllItems(t *testing.T) {
 	test.ClearLocalCache()
-	cache := local.GetInstance()
+	cache := local.GetInstance("test-cache")
 
 	data := map[string]interface{}{
 		"test:key:key1": routing.ReqRoutingInfo{
@@ -150,7 +163,7 @@ func TestGetAllItems(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	test.ClearLocalCache()
-	cache := local.GetInstance()
+	cache := local.GetInstance("test-cache")
 
 	data := map[string]interface{}{
 		"test:key:key1": routing.ReqRoutingInfo{

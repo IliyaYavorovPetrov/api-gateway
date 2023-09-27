@@ -3,44 +3,53 @@ package distributed
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
-	icache "github.com/redis/go-redis/v9"
+	cacheprovider "github.com/redis/go-redis/v9"
 )
 
+var pool = make(map[string]Gateway)
+
 type Gateway struct {
-	cache *icache.Client
+	name  string
+	cache *cacheprovider.Client
 }
 
 var _ gateways.Cache = (*Gateway)(nil)
-var instance *Gateway
-var apiGatewayHash string
 
-func init() {
-	instance = createInstance("apiGatewayHash")
-}
-
-func createInstance(hash string) *Gateway {
-	apiGatewayHash = hash
-	return &Gateway{
-		cache: icache.NewClient(&icache.Options{
+func CreateInstance(name string) *Gateway {
+	inst := Gateway{
+		name: name,
+		cache: cacheprovider.NewClient(&cacheprovider.Options{
 			Addr:     "localhost:6379",
 			Password: "",
 			DB:       0,
 		}),
 	}
+
+	if _, ok := pool[name]; !ok {
+		pool[name] = inst
+	}
+
+	return &inst
 }
 
-func GetInstance() *Gateway {
-	return instance
+func GetInstance(name string) *Gateway {
+	res, ok := pool[name]
+	if ok != true {
+		return nil
+	}
+
+	return &res
 }
 
 func (gw *Gateway) Get(ctx context.Context, key string) (interface{}, error) {
-	data, err := gw.cache.HGet(ctx, apiGatewayHash, key).Result()
+	data, err := gw.cache.HGet(ctx, gw.name, key).Result()
 	if err != nil {
 		return nil, cache.ErrNotFoundKey
 	}
@@ -64,7 +73,7 @@ func (gw *Gateway) Add(ctx context.Context, key string, val interface{}) error {
 		return err
 	}
 
-	if _, err := gw.cache.HSet(ctx, apiGatewayHash, key, string(serializedVal)).Result(); err != nil {
+	if _, err := gw.cache.HSet(ctx, gw.name, key, string(serializedVal)).Result(); err != nil {
 		return err
 	}
 
@@ -88,7 +97,7 @@ func (gw *Gateway) GetAllKeysByPrefix(ctx context.Context, prefix string) ([]str
 	isOdd := true
 
 	for {
-		fieldNames, nextCursor, err := gw.cache.HScan(ctx, apiGatewayHash, cursor, prefix+"*", 10).Result()
+		fieldNames, nextCursor, err := gw.cache.HScan(ctx, gw.name, cursor, prefix+"*", 10).Result()
 		if err != nil {
 			return nil, err
 		}
@@ -120,7 +129,7 @@ func (gw *Gateway) GetAllItems(ctx context.Context) (map[string]interface{}, err
 
 	for _, key := range keys {
 		data, err := gw.Get(ctx, key)
-		if err != nil && err != cache.ErrNotFoundKey {
+		if err != nil && !errors.Is(err, cache.ErrNotFoundKey) {
 			return nil, err
 		}
 
@@ -133,7 +142,7 @@ func (gw *Gateway) GetAllItems(ctx context.Context) (map[string]interface{}, err
 }
 
 func (gw *Gateway) Delete(ctx context.Context, key string) error {
-	_, err := gw.cache.HDel(ctx, apiGatewayHash, key).Result()
+	_, err := gw.cache.HDel(ctx, gw.name, key).Result()
 	if err != nil {
 		return err
 	}

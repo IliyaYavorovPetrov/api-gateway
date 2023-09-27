@@ -6,30 +6,40 @@ import (
 
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache"
-	icache "github.com/orcaman/concurrent-map/v2"
+	cacheprovider "github.com/orcaman/concurrent-map/v2"
 )
 
+var pool = make(map[string]Gateway)
+
 type Gateway struct {
-	cache *icache.ConcurrentMap[string, interface{}]
+	name  string
+	cache *cacheprovider.ConcurrentMap[string, interface{}]
 }
 
 var _ gateways.Cache = (*Gateway)(nil)
-var instance *Gateway
 
-func init() {
-	instance = createInstance()
-}
+func CreateInstance(name string) *Gateway {
+	c := cacheprovider.New[interface{}]()
 
-func createInstance() *Gateway {
-	c := icache.New[interface{}]()
-
-	return &Gateway{
+	inst := Gateway{
+		name:  name,
 		cache: &c,
 	}
+
+	if _, ok := pool[name]; !ok {
+		pool[name] = inst
+	}
+
+	return &inst
 }
 
-func GetInstance() *Gateway {
-	return instance
+func GetInstance(name string) *Gateway {
+	res, ok := pool[name]
+	if ok != true {
+		return nil
+	}
+
+	return &res
 }
 
 func (gw *Gateway) Get(ctx context.Context, key string) (interface{}, error) {
