@@ -13,7 +13,7 @@ import (
 	cacheprovider "github.com/redis/go-redis/v9"
 )
 
-var pool = make(map[string]Gateway)
+var cachePool = make(map[string]Gateway)
 
 type Gateway struct {
 	name  string
@@ -32,15 +32,15 @@ func CreateInstance(name string) *Gateway {
 		}),
 	}
 
-	if _, ok := pool[name]; !ok {
-		pool[name] = inst
+	if _, ok := cachePool[name]; !ok {
+		cachePool[name] = inst
 	}
 
 	return &inst
 }
 
 func GetInstance(name string) *Gateway {
-	res, ok := pool[name]
+	res, ok := cachePool[name]
 	if ok != true {
 		return nil
 	}
