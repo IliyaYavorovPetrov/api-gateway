@@ -1,5 +1,10 @@
 package auth
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 type Role string
 
 const (
@@ -42,4 +47,22 @@ func NewSession(userID string, username string, userRole string, isBlacklisted b
 	}
 
 	return Session{userID, username, string(role), isBlacklisted}, nil
+}
+
+func (s Session) Equals(other interface{}) bool {
+	if session, ok := other.(Session); ok {
+		return s == session
+	}
+
+	return false
+}
+
+func (s Session) ToString() string {
+	data, err := json.Marshal(s)
+	if err != nil {
+		fmt.Println("error encoding to json:", err)
+		return ""
+	}
+
+	return string(data)
 }

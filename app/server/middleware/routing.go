@@ -2,10 +2,9 @@ package middleware
 
 import (
 	"context"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
 	"log"
 	"net/http"
-
-	"github.com/IliyaYavorovPetrov/api-gateway/app/routing"
 )
 
 func Routing(next http.Handler) http.Handler {

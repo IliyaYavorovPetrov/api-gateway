@@ -11,5 +11,6 @@ require (
 
 require (
 	github.com/google/uuid v1.3.1
+	github.com/orcaman/concurrent-map/v2 v2.0.1
 	github.com/redis/go-redis/v9 v9.1.0
 )
