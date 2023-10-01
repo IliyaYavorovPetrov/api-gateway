@@ -2,7 +2,7 @@ package auth_test
 
 import (
 	"context"
-	auth2 "github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
 	"log"
 	"reflect"
@@ -10,7 +10,7 @@ import (
 )
 
 func clearSessionStore(ctx context.Context) {
-	err := auth2.ClearSessionStore(ctx)
+	err := auth.ClearSessionStore(ctx)
 	if err != nil {
 		log.Fatal("could not clear session store")
 	}
@@ -20,24 +20,24 @@ func TestAddAndGetFromSessionStore(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	s1 := &models.Session{
+	session1 := models.Session{
 		UserID:        "id1",
 		Username:      "ivan",
 		UserRole:      "User",
 		IsBlacklisted: false,
 	}
 
-	sessionID, err := auth2.AddToSessionStore(ctx, s1)
+	sessionID, err := auth.AddToSessionStore(ctx, session1)
 	if err != nil {
 		t.Fatalf("AddToSessionStore failed: %v", err)
 	}
 
-	s2, err := auth2.GetSessionFromSessionID(ctx, sessionID)
+	session2, err := auth.GetSessionFromSessionID(ctx, sessionID)
 	if err != nil {
 		t.Fatalf("GetSessionFromSessionID failed: %v", err)
 	}
 
-	if !reflect.DeepEqual(s1, s2) {
+	if !reflect.DeepEqual(session1, session2) {
 		t.Errorf("sessions are different")
 	}
 }
@@ -46,26 +46,26 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	s1 := &models.Session{
+	s1 := models.Session{
 		UserID:        "id1",
 		Username:      "ivan",
 		UserRole:      "User",
 		IsBlacklisted: false,
 	}
 
-	sessionID1, err := auth2.AddToSessionStore(ctx, s1)
+	sessionID1, err := auth.AddToSessionStore(ctx, s1)
 	if err != nil {
 		t.Fatalf("AddToSessionStore failed: %v", err)
 	}
 
-	s2 := &models.Session{
+	s2 := models.Session{
 		UserID:        "id2",
 		Username:      "gosho",
 		UserRole:      "Admin",
 		IsBlacklisted: false,
 	}
 
-	sessionID2, err := auth2.AddToSessionStore(ctx, s2)
+	sessionID2, err := auth.AddToSessionStore(ctx, s2)
 	if err != nil {
 		t.Fatalf("AddToSessionStore failed: %v", err)
 	}
@@ -74,7 +74,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	valuesToCheck[sessionID1] = struct{}{}
 	valuesToCheck[sessionID2] = struct{}{}
 
-	allSessionIDs, err := auth2.GetAllSessionIDs(ctx)
+	allSessionIDs, err := auth.GetAllSessionIDs(ctx)
 	if err != nil {
 		t.Fatalf("GetAllSessionIDs failed: %v", err)
 	}
@@ -84,7 +84,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	}
 
 	for _, str := range allSessionIDs {
-		sID, err := auth2.ExtractSessionIDFromSessionHashKey(str)
+		sID, err := auth.ExtractSessionIDFromSessionHashKey(str)
 		if err != nil {
 			t.Errorf("%v", err)
 		}

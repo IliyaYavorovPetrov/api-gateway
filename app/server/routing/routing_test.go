@@ -5,7 +5,6 @@ import (
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
 	"log"
-	"reflect"
 	"testing"
 )
 
@@ -20,7 +19,7 @@ func TestAddAndGetFromRoutingCfgStore(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	rri1 := &models.ReqRoutingInfo{
+	rri1 := models.ReqRoutingInfo{
 		SourceURL:      "https://src",
 		DestinationURL: "http://dest",
 		MethodHTTP:     "POST",
@@ -37,7 +36,7 @@ func TestAddAndGetFromRoutingCfgStore(t *testing.T) {
 		t.Fatalf("GetRoutingCfgFromMethodHTTPSourceURL failed: %v", err)
 	}
 
-	if !reflect.DeepEqual(rri1, rri2) {
+	if rri1 != rri2 {
 		t.Errorf("request session infos are different")
 	}
 }
@@ -46,7 +45,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	rri1 := &models.ReqRoutingInfo{
+	rri1 := models.ReqRoutingInfo{
 		SourceURL:      "https://src",
 		DestinationURL: "http://dest",
 		MethodHTTP:     "POST",
@@ -58,7 +57,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 		t.Fatalf("AddToRoutingCfgStore failed: %v", err)
 	}
 
-	rri2 := &models.ReqRoutingInfo{
+	rri2 := models.ReqRoutingInfo{
 		SourceURL:      "https://foo",
 		DestinationURL: "http://bar",
 		MethodHTTP:     "GET",

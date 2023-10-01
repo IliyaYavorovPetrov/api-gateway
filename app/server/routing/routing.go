@@ -33,7 +33,7 @@ func ExtractRequestKeyFromRoutingCfgHashKey(s string) (string, error) {
 	return s, ErrNotValidCfgRoutingHashKey
 }
 
-func AddToRoutingCfgStore(ctx context.Context, rri *models.ReqRoutingInfo) (string, error) {
+func AddToRoutingCfgStore(ctx context.Context, rri models.ReqRoutingInfo) (string, error) {
 	err := distributedCache.Add(ctx, createRoutingCfgHashKey(rri.MethodHTTP, rri.SourceURL), rri)
 	if err != nil {
 		log.Fatalf("failed to add a routing configuration %s", err)
@@ -44,7 +44,7 @@ func AddToRoutingCfgStore(ctx context.Context, rri *models.ReqRoutingInfo) (stri
 }
 
 func GetRoutingCfgFromRequestKey(ctx context.Context, requestKey string) (models.ReqRoutingInfo, error) {
-	rri, err := distributedCache.Get(ctx, requestKey)
+	rri, err := distributedCache.Get(ctx, prefixRoutingCfg+requestKey)
 	if err != nil {
 		return models.ReqRoutingInfo{}, err
 	}

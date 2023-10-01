@@ -53,7 +53,7 @@ func AddRoutingCfgHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	_, err := AddToRoutingCfgStore(ctx, &rri)
+	_, err := AddToRoutingCfgStore(ctx, rri)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

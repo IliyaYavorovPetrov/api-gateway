@@ -34,12 +34,12 @@ func ExtractSessionIDFromSessionHashKey(s string) (string, error) {
 	return s, ErrNotValidSessionHashKey
 }
 
-func AddToSessionStore(ctx context.Context, s *models.Session) (string, error) {
+func AddToSessionStore(ctx context.Context, session models.Session) (string, error) {
 	sessionID := uuid.New().String()
 
-	err := distributedCache.Add(ctx, createSessionHashKey(sessionID), s)
+	err := distributedCache.Add(ctx, createSessionHashKey(sessionID), session)
 	if err != nil {
-		log.Fatalf("failed to add an auth session %s", err)
+		log.Fatalf("failed to add an auth session %session", err)
 		return "", err
 	}
 
