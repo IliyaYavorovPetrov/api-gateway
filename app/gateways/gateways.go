@@ -2,8 +2,6 @@ package gateways
 
 import "context"
 
-// TODO: Need separate local/distributed cache for both routing/auth
-
 type Cache interface {
 	Get(ctx context.Context, key string) (interface{}, error)
 	Add(ctx context.Context, key string, val interface{}) error
