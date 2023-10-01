@@ -3,7 +3,7 @@ package distributed_test
 import (
 	"context"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/distributed"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
 	"github.com/IliyaYavorovPetrov/api-gateway/test"
 	"testing"
 )
@@ -26,7 +26,7 @@ func TestAddAndGet(t *testing.T) {
 	cache := distributed.GetInstance("test-cache")
 
 	key := "key1"
-	rri := routing.ReqRoutingInfo{
+	rri := models.ReqRoutingInfo{
 		SourceURL:      "https://src/1",
 		DestinationURL: "http://dest/1",
 		MethodHTTP:     "GET",
@@ -52,13 +52,13 @@ func TestAddAllItems(t *testing.T) {
 	cache := distributed.GetInstance("test-cache")
 
 	data := map[string]interface{}{
-		"key1": routing.ReqRoutingInfo{
+		"key1": models.ReqRoutingInfo{
 			SourceURL:      "https://src/1",
 			DestinationURL: "http://dest/1",
 			MethodHTTP:     "GET",
 			IsAuthNeeded:   false,
 		},
-		"key2": routing.ReqRoutingInfo{
+		"key2": models.ReqRoutingInfo{
 			SourceURL:      "https://src/2",
 			DestinationURL: "http://dest/2",
 			MethodHTTP:     "GET",
@@ -87,19 +87,19 @@ func TestGetAllKeysByPrefix(t *testing.T) {
 	cache := distributed.GetInstance("test-cache")
 
 	data := map[string]interface{}{
-		"test:key:key1": routing.ReqRoutingInfo{
+		"test:key:key1": models.ReqRoutingInfo{
 			SourceURL:      "https://src/1",
 			DestinationURL: "http://dest/1",
 			MethodHTTP:     "GET",
 			IsAuthNeeded:   false,
 		},
-		"test:key:key2": routing.ReqRoutingInfo{
+		"test:key:key2": models.ReqRoutingInfo{
 			SourceURL:      "https://src/2",
 			DestinationURL: "http://dest/2",
 			MethodHTTP:     "GET",
 			IsAuthNeeded:   false,
 		},
-		"wrong:key:key2": routing.ReqRoutingInfo{
+		"wrong:key:key2": models.ReqRoutingInfo{
 			SourceURL:      "https://src/3",
 			DestinationURL: "http://dest/3",
 			MethodHTTP:     "GET",
@@ -135,13 +135,13 @@ func TestGetAllItems(t *testing.T) {
 	cache := distributed.GetInstance("test-cache")
 
 	data := map[string]interface{}{
-		"test:key:key1": routing.ReqRoutingInfo{
+		"test:key:key1": models.ReqRoutingInfo{
 			SourceURL:      "https://src/1",
 			DestinationURL: "http://dest/1",
 			MethodHTTP:     "GET",
 			IsAuthNeeded:   false,
 		},
-		"test:key:key2": routing.ReqRoutingInfo{
+		"test:key:key2": models.ReqRoutingInfo{
 			SourceURL:      "https://src/2",
 			DestinationURL: "http://dest/2",
 			MethodHTTP:     "GET",
@@ -173,13 +173,13 @@ func TestDelete(t *testing.T) {
 	cache := distributed.GetInstance("test-cache")
 
 	data := map[string]interface{}{
-		"test:key:key1": routing.ReqRoutingInfo{
+		"test:key:key1": models.ReqRoutingInfo{
 			SourceURL:      "https://src/1",
 			DestinationURL: "http://dest/1",
 			MethodHTTP:     "GET",
 			IsAuthNeeded:   false,
 		},
-		"test:key:key2": routing.ReqRoutingInfo{
+		"test:key:key2": models.ReqRoutingInfo{
 			SourceURL:      "https://src/2",
 			DestinationURL: "http://dest/2",
 			MethodHTTP:     "GET",

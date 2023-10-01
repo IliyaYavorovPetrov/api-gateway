@@ -3,6 +3,7 @@ package auth_test
 import (
 	"context"
 	auth2 "github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
 	"log"
 	"reflect"
 	"testing"
@@ -19,7 +20,7 @@ func TestAddAndGetFromSessionStore(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	s1 := &auth2.Session{
+	s1 := &models.Session{
 		UserID:        "id1",
 		Username:      "ivan",
 		UserRole:      "User",
@@ -45,7 +46,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	s1 := &auth2.Session{
+	s1 := &models.Session{
 		UserID:        "id1",
 		Username:      "ivan",
 		UserRole:      "User",
@@ -57,7 +58,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 		t.Fatalf("AddToSessionStore failed: %v", err)
 	}
 
-	s2 := &auth2.Session{
+	s2 := &models.Session{
 		UserID:        "id2",
 		Username:      "gosho",
 		UserRole:      "Admin",

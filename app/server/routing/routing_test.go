@@ -2,6 +2,7 @@ package routing_test
 
 import (
 	"context"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
 	"log"
 	"reflect"
@@ -19,7 +20,7 @@ func TestAddAndGetFromRoutingCfgStore(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	rri1 := &routing.ReqRoutingInfo{
+	rri1 := &models.ReqRoutingInfo{
 		SourceURL:      "https://src",
 		DestinationURL: "http://dest",
 		MethodHTTP:     "POST",
@@ -45,7 +46,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	ctx := context.Background()
 	clearSessionStore(ctx)
 
-	rri1 := &routing.ReqRoutingInfo{
+	rri1 := &models.ReqRoutingInfo{
 		SourceURL:      "https://src",
 		DestinationURL: "http://dest",
 		MethodHTTP:     "POST",
@@ -57,7 +58,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 		t.Fatalf("AddToRoutingCfgStore failed: %v", err)
 	}
 
-	rri2 := &routing.ReqRoutingInfo{
+	rri2 := &models.ReqRoutingInfo{
 		SourceURL:      "https://foo",
 		DestinationURL: "http://bar",
 		MethodHTTP:     "GET",

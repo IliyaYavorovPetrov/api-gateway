@@ -5,6 +5,7 @@ import (
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/distributed"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/local"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
 	"log"
 	"strings"
 )
@@ -32,7 +33,7 @@ func ExtractRequestKeyFromRoutingCfgHashKey(s string) (string, error) {
 	return s, ErrNotValidCfgRoutingHashKey
 }
 
-func AddToRoutingCfgStore(ctx context.Context, rri *ReqRoutingInfo) (string, error) {
+func AddToRoutingCfgStore(ctx context.Context, rri *models.ReqRoutingInfo) (string, error) {
 	err := distributedCache.Add(ctx, createRoutingCfgHashKey(rri.MethodHTTP, rri.SourceURL), rri)
 	if err != nil {
 		log.Fatalf("failed to add a routing configuration %s", err)
@@ -42,13 +43,13 @@ func AddToRoutingCfgStore(ctx context.Context, rri *ReqRoutingInfo) (string, err
 	return rri.MethodHTTP + delimiter + rri.SourceURL, nil
 }
 
-func GetRoutingCfgFromRequestKey(ctx context.Context, requestKey string) (ReqRoutingInfo, error) {
+func GetRoutingCfgFromRequestKey(ctx context.Context, requestKey string) (models.ReqRoutingInfo, error) {
 	rri, err := distributedCache.Get(ctx, requestKey)
 	if err != nil {
-		return ReqRoutingInfo{}, err
+		return models.ReqRoutingInfo{}, err
 	}
 
-	return rri.(ReqRoutingInfo), nil
+	return rri.(models.ReqRoutingInfo), nil
 }
 
 func GetAllRoutingCfgs(ctx context.Context) ([]string, error) {

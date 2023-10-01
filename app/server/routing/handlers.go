@@ -3,6 +3,7 @@ package routing
 import (
 	"context"
 	"encoding/json"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
 	"net/http"
 )
 
@@ -14,17 +15,17 @@ func GetAllRoutingCfgHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	var cfgs []ReqRoutingInfo
-	
+	var cfgs []models.ReqRoutingInfo
+
 	for i := 0; i < len(cfgKeys); i++ {
-        cfg, err := GetRoutingCfgFromRequestKey(ctx, cfgKeys[i])
+		cfg, err := GetRoutingCfgFromRequestKey(ctx, cfgKeys[i])
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		cfgs = append(cfgs, cfg)
-    }
+	}
 
 	jcfgs, err := json.Marshal(cfgs)
 	if err != nil {
@@ -33,28 +34,28 @@ func GetAllRoutingCfgHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-    _, err = w.Write(jcfgs)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+	_, err = w.Write(jcfgs)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func AddRoutingCfgHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	var rri ReqRoutingInfo
+	var rri models.ReqRoutingInfo
 
-    decoder := json.NewDecoder(r.Body)
-    if err := decoder.Decode(&rri); err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&rri); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	defer r.Body.Close()
 
 	_, err := AddToRoutingCfgStore(ctx, &rri)
 	if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

@@ -4,12 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
 	"log"
 
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
 	cacheprovider "github.com/redis/go-redis/v9"
 )
 
@@ -54,12 +53,12 @@ func (gw *Gateway) Get(ctx context.Context, key string) (interface{}, error) {
 		return nil, cache.ErrNotFoundKey
 	}
 
-	var rri routing.ReqRoutingInfo
+	var rri models.ReqRoutingInfo
 	if err := json.Unmarshal([]byte(data), &rri); err == nil {
 		return rri, nil
 	}
 
-	var session auth.Session
+	var session models.Session
 	if err := json.Unmarshal([]byte(data), &session); err == nil {
 		return session, nil
 	}

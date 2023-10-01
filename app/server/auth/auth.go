@@ -5,6 +5,7 @@ import (
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/distributed"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/local"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
 	"log"
 	"strings"
 
@@ -33,7 +34,7 @@ func ExtractSessionIDFromSessionHashKey(s string) (string, error) {
 	return s, ErrNotValidSessionHashKey
 }
 
-func AddToSessionStore(ctx context.Context, s *Session) (string, error) {
+func AddToSessionStore(ctx context.Context, s *models.Session) (string, error) {
 	sessionID := uuid.New().String()
 
 	err := distributedCache.Add(ctx, createSessionHashKey(sessionID), s)
@@ -45,13 +46,13 @@ func AddToSessionStore(ctx context.Context, s *Session) (string, error) {
 	return sessionID, nil
 }
 
-func GetSessionFromSessionID(ctx context.Context, sessionID string) (Session, error) {
+func GetSessionFromSessionID(ctx context.Context, sessionID string) (models.Session, error) {
 	session, err := distributedCache.Get(ctx, createSessionHashKey(sessionID))
 	if err != nil {
-		return Session{}, err
+		return models.Session{}, err
 	}
 
-	return session.(Session), nil
+	return session.(models.Session), nil
 }
 
 func GetAllSessionIDs(ctx context.Context) ([]string, error) {
