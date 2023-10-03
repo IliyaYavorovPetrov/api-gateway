@@ -10,12 +10,12 @@ import (
 
 func TestCreateInstance(t *testing.T) {
 	test.ClearDistributedCache()
-	cache := distributed.GetInstance("wrong-cache")
+	cache := distributed.GetCache("wrong-cache")
 	if cache != nil {
 		t.Errorf("expected to get a no cache, but got one")
 	}
 
-	cache = distributed.GetInstance("test-cache")
+	cache = distributed.GetCache("test-cache")
 	if cache == nil {
 		t.Errorf("expected to get a cache, but didn't got one")
 	}
@@ -23,7 +23,7 @@ func TestCreateInstance(t *testing.T) {
 
 func TestAddAndGet(t *testing.T) {
 	test.ClearDistributedCache()
-	cache := distributed.GetInstance("test-cache")
+	cache := distributed.GetCache("test-cache")
 
 	key := "key1"
 	rri := models.ReqRoutingInfo{
@@ -49,7 +49,7 @@ func TestAddAndGet(t *testing.T) {
 
 func TestAddAllItems(t *testing.T) {
 	test.ClearDistributedCache()
-	cache := distributed.GetInstance("test-cache")
+	cache := distributed.GetCache("test-cache")
 
 	data := map[string]interface{}{
 		"key1": models.ReqRoutingInfo{
@@ -84,7 +84,7 @@ func TestAddAllItems(t *testing.T) {
 
 func TestGetAllKeysByPrefix(t *testing.T) {
 	test.ClearDistributedCache()
-	cache := distributed.GetInstance("test-cache")
+	cache := distributed.GetCache("test-cache")
 
 	data := map[string]interface{}{
 		"test:key:key1": models.ReqRoutingInfo{
@@ -132,7 +132,7 @@ func TestGetAllKeysByPrefix(t *testing.T) {
 
 func TestGetAllItems(t *testing.T) {
 	test.ClearDistributedCache()
-	cache := distributed.GetInstance("test-cache")
+	cache := distributed.GetCache("test-cache")
 
 	data := map[string]interface{}{
 		"test:key:key1": models.ReqRoutingInfo{
@@ -170,7 +170,7 @@ func TestGetAllItems(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	test.ClearDistributedCache()
-	cache := distributed.GetInstance("test-cache")
+	cache := distributed.GetCache("test-cache")
 
 	data := map[string]interface{}{
 		"test:key:key1": models.ReqRoutingInfo{

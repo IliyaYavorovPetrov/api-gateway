@@ -18,7 +18,7 @@ var distributedCache gateways.Cache
 
 func init() {
 	localCache = local.CreateInstance("routing-local-cache")
-	distributedCache = distributed.CreateInstance("routing-distributed-cache")
+	distributedCache = distributed.New("routing-distributed-cache")
 }
 
 func createRoutingCfgHashKey(methodHTTP string, sourceURL string) string {

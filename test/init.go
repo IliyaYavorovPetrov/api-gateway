@@ -14,7 +14,7 @@ var dist gateways.Cache
 func init() {
 	ctx = context.Background()
 	loc = local.CreateInstance("test-cache")
-	dist = distributed.CreateInstance("test-cache")
+	dist = distributed.New("test-cache")
 }
 
 func GetCtx() context.Context {

@@ -19,7 +19,7 @@ var distributedCache gateways.Cache
 
 func init() {
 	localCache = local.CreateInstance("auth-local-cache")
-	distributedCache = distributed.CreateInstance("auth-distributed-cache")
+	distributedCache = distributed.New("auth-distributed-cache")
 }
 
 func createSessionHashKey(sessionID string) string {
