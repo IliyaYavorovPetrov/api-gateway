@@ -7,7 +7,7 @@ import (
 
 // If distributed write fails, we have inconsistent state of cache
 
-func WriteToLocalAndDistributedCaches(ctx context.Context, local gateways.Cache, distributed gateways.Cache, key string, data interface{}) error {
+func WriteToLocalAndDistributedCaches[V any](ctx context.Context, local gateways.Cache[V], distributed gateways.Cache[V], key string, data interface{}) error {
 	err := local.Add(ctx, key, data)
 	if err != nil {
 		return err
@@ -23,7 +23,7 @@ func WriteToLocalAndDistributedCaches(ctx context.Context, local gateways.Cache,
 
 // Again can have inconsistent state of cache c1
 
-func LoadCacheOneWithCacheTwo(ctx context.Context, c1 gateways.Cache, c2 gateways.Cache) error {
+func LoadCacheOneWithCacheTwo[V any](ctx context.Context, c1 gateways.Cache[V], c2 gateways.Cache[V]) error {
 	items, err := c2.GetAllItems(ctx)
 	if err != nil {
 		return err
