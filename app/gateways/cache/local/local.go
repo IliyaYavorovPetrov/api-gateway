@@ -17,9 +17,11 @@ type Gateway[V any] struct {
 func New[V any](name string) gateways.Cache[V] {
 	pool := cache.Pool()
 
+	cm := cacheprovider.New[V]()
+
 	newCache := &Gateway[V]{
 		name:  name,
-		cache: &cacheprovider.ConcurrentMap[string, V]{},
+		cache: &cm,
 	}
 
 	(*pool)[name] = newCache
@@ -27,15 +29,13 @@ func New[V any](name string) gateways.Cache[V] {
 	return newCache
 }
 
-func (gw *Gateway[V]) Get(ctx context.Context, key string) (V, error) {
-	var val V
-
-	_, ok := gw.cache.Get(key)
+func (gw *Gateway[V]) Get(ctx context.Context, key string) (*V, error) {
+	val, ok := gw.cache.Get(key)
 	if !ok {
-		return val, cache.ErrNotFoundKey
+		return nil, cache.ErrNotFoundKey
 	}
 
-	return val, nil
+	return &val, nil
 }
 
 func (gw *Gateway[V]) Add(ctx context.Context, key string, val V) error {

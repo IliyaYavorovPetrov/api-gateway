@@ -3,7 +3,7 @@ package gateways
 import "context"
 
 type Cache[V any] interface {
-	Get(ctx context.Context, key string) (V, error)
+	Get(ctx context.Context, key string) (*V, error)
 	Add(ctx context.Context, key string, val V) error
 	AddAllItems(ctx context.Context, other map[string]V) error
 	GetAllKeysByPrefix(ctx context.Context, prefix string) ([]string, error)

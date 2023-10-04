@@ -33,19 +33,19 @@ func New[V comparable](name string) gateways.Cache[V] {
 	return newCache
 }
 
-func (gw *Gateway[V]) Get(ctx context.Context, key string) (V, error) {
+func (gw *Gateway[V]) Get(ctx context.Context, key string) (*V, error) {
 	var val V
 
 	data, err := gw.cache.HGet(ctx, gw.name, key).Result()
 	if err != nil {
-		return val, cache.ErrNotFoundKey
+		return nil, cache.ErrNotFoundKey
 	}
 
 	if err := json.Unmarshal([]byte(data), &val); err != nil {
-		return val, cache.ErrNotFoundKey
+		return nil, cache.ErrNotFoundKey
 	}
 
-	return val, nil
+	return &val, nil
 }
 
 func (gw *Gateway[V]) Add(ctx context.Context, key string, val V) error {
@@ -115,7 +115,7 @@ func (gw *Gateway[V]) GetAllItems(ctx context.Context) (map[string]V, error) {
 		}
 
 		if data != nil {
-			items[key] = data
+			items[key] = *data
 		}
 	}
 

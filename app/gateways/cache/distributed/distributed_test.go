@@ -7,19 +7,6 @@ import (
 	"testing"
 )
 
-func TestCreateInstance(t *testing.T) {
-	test.ClearDistributedCache()
-	cache := test.GetWrongDistributedCache()
-	if cache != nil {
-		t.Errorf("expected to get a no cache, but got one")
-	}
-
-	cache = test.GetDistributedCache()
-	if cache == nil {
-		t.Errorf("expected to get a cache, but didn't got one")
-	}
-}
-
 func TestAddAndGet(t *testing.T) {
 	test.ClearDistributedCache()
 	cache := test.GetDistributedCache()
@@ -41,8 +28,8 @@ func TestAddAndGet(t *testing.T) {
 	if err != nil {
 		t.Errorf("Get failed: %v", err)
 	}
-	if res != rri {
-		t.Errorf("expected %s, but got %s", rri.ToString(), res)
+	if *res != rri {
+		t.Errorf("expected %+v, but got %+v", rri, res)
 	}
 }
 
@@ -75,8 +62,8 @@ func TestAddAllItems(t *testing.T) {
 		if err != nil {
 			t.Errorf("Get failed: %v", err)
 		}
-		if res != val {
-			t.Errorf("expected %s, but got %s", val, res)
+		if *res != val {
+			t.Errorf("expected %+v, but got %+v", val, res)
 		}
 	}
 }

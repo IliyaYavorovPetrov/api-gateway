@@ -27,16 +27,8 @@ func GetLocalCache() gateways.Cache[models.ReqRoutingInfo] {
 	return loc
 }
 
-func GetWrongLocalCache() gateways.Cache[models.ReqRoutingInfo] {
-	return &local.Gateway[models.ReqRoutingInfo]{}
-}
-
 func GetDistributedCache() gateways.Cache[models.ReqRoutingInfo] {
 	return dist
-}
-
-func GetWrongDistributedCache() gateways.Cache[models.ReqRoutingInfo] {
-	return &distributed.Gateway[models.ReqRoutingInfo]{}
 }
 
 func ClearLocalCache() {
@@ -51,11 +43,6 @@ func ClearDistributedCache() {
 	if err != nil {
 		log.Fatal("failed to clear local storage")
 	}
-}
-
-func ClearBothCaches() {
-	ClearLocalCache()
-	ClearDistributedCache()
 }
 
 func ContainsItem(item string, arr []string) bool {
