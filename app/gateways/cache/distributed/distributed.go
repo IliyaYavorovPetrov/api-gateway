@@ -11,12 +11,12 @@ import (
 	cacheprovider "github.com/redis/go-redis/v9"
 )
 
-type Gateway[V any] struct {
+type Gateway[V comparable] struct {
 	name  string
 	cache *cacheprovider.Client
 }
 
-func New[V any](name string) gateways.Cache[V] {
+func New[V comparable](name string) gateways.Cache[V] {
 	pool := cache.Pool()
 
 	newCache := &Gateway[V]{

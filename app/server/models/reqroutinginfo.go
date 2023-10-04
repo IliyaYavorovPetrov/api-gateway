@@ -13,10 +13,6 @@ type ReqRoutingInfo struct {
 	IsAuthNeeded   bool   `redis:"isAuthNeeded" json:"isAuthNeeded"`
 }
 
-func NewReqRoutingInfo(sourceURL string, destinationURL string, methodHTTP string, isAuthNeeded bool) (ReqRoutingInfo, error) {
-	return ReqRoutingInfo{sourceURL, destinationURL, methodHTTP, isAuthNeeded}, nil
-}
-
 func (rri ReqRoutingInfo) Equals(other interface{}) bool {
 	if session, ok := other.(ReqRoutingInfo); ok {
 		return rri == session

@@ -5,21 +5,38 @@ import (
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/distributed"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/local"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
 	"log"
 )
 
 var ctx context.Context
-var loc gateways.Cache[]
-var dist gateways.Cache
+var loc gateways.Cache[models.ReqRoutingInfo]
+var dist gateways.Cache[models.ReqRoutingInfo]
 
 func init() {
 	ctx = context.Background()
-	loc = local.New("test-cache")
-	dist = distributed.New("test-cache")
+	loc = local.New[models.ReqRoutingInfo]("test-cache")
+	dist = distributed.New[models.ReqRoutingInfo]("test-cache")
 }
 
 func GetCtx() context.Context {
 	return ctx
+}
+
+func GetLocalCache() gateways.Cache[models.ReqRoutingInfo] {
+	return loc
+}
+
+func GetWrongLocalCache() gateways.Cache[models.ReqRoutingInfo] {
+	return &local.Gateway[models.ReqRoutingInfo]{}
+}
+
+func GetDistributedCache() gateways.Cache[models.ReqRoutingInfo] {
+	return dist
+}
+
+func GetWrongDistributedCache() gateways.Cache[models.ReqRoutingInfo] {
+	return &distributed.Gateway[models.ReqRoutingInfo]{}
 }
 
 func ClearLocalCache() {
@@ -36,7 +53,7 @@ func ClearDistributedCache() {
 	}
 }
 
-func ClearCaches() {
+func ClearBothCaches() {
 	ClearLocalCache()
 	ClearDistributedCache()
 }
@@ -51,7 +68,7 @@ func ContainsItem(item string, arr []string) bool {
 	return false
 }
 
-func MapEqual(a map[string]interface{}, b map[string]interface{}) bool {
+func MapEqual[T comparable](a map[string]T, b map[string]T) bool {
 	if len(a) != len(b) {
 		return false
 	}
