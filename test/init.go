@@ -13,7 +13,7 @@ var dist gateways.Cache
 
 func init() {
 	ctx = context.Background()
-	loc = local.CreateInstance("test-cache")
+	loc = local.New("test-cache")
 	dist = distributed.New("test-cache")
 }
 

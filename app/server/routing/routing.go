@@ -17,7 +17,7 @@ var localCache gateways.Cache
 var distributedCache gateways.Cache
 
 func init() {
-	localCache = local.CreateInstance("routing-local-cache")
+	localCache = local.New("routing-local-cache")
 	distributedCache = distributed.New("routing-distributed-cache")
 }
 

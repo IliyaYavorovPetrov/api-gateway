@@ -16,12 +16,8 @@ type Gateway[V any] struct {
 	cache *cacheprovider.Client
 }
 
-var cacheInstances = make(map[string]interface{})
-
 func New[V any](name string) gateways.Cache[V] {
-	if existingCache, ok := cacheInstances[name]; ok {
-		return existingCache.(gateways.Cache[V])
-	}
+	pool := cache.Pool()
 
 	newCache := &Gateway[V]{
 		name: name,
@@ -32,7 +28,8 @@ func New[V any](name string) gateways.Cache[V] {
 		}),
 	}
 
-	cacheInstances[name] = newCache
+	(*pool)[name] = newCache
+
 	return newCache
 }
 
