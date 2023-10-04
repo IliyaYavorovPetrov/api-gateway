@@ -14,12 +14,12 @@ import (
 
 var prefixAuthSession = "auth:session:"
 
-var localCache gateways.Cache
-var distributedCache gateways.Cache
+var localCache gateways.Cache[models.Session]
+var distributedCache gateways.Cache[models.Session]
 
 func init() {
-	localCache = local.New("auth-local-cache")
-	distributedCache = distributed.New("auth-distributed-cache")
+	localCache = local.New[models.Session]("auth-local-cache")
+	distributedCache = distributed.New[models.Session]("auth-distributed-cache")
 }
 
 func createSessionHashKey(sessionID string) string {
@@ -52,7 +52,7 @@ func GetSessionFromSessionID(ctx context.Context, sessionID string) (models.Sess
 		return models.Session{}, err
 	}
 
-	return session.(models.Session), nil
+	return *session, nil
 }
 
 func GetAllSessionIDs(ctx context.Context) ([]string, error) {

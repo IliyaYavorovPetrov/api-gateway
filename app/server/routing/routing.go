@@ -13,12 +13,12 @@ import (
 var delimiter = "|"
 var prefixRoutingCfg = "routing:cfg:"
 
-var localCache gateways.Cache
-var distributedCache gateways.Cache
+var localCache gateways.Cache[models.ReqRoutingInfo]
+var distributedCache gateways.Cache[models.ReqRoutingInfo]
 
 func init() {
-	localCache = local.New("routing-local-cache")
-	distributedCache = distributed.New("routing-distributed-cache")
+	localCache = local.New[models.ReqRoutingInfo]("routing-local-cache")
+	distributedCache = distributed.New[models.ReqRoutingInfo]("routing-distributed-cache")
 }
 
 func createRoutingCfgHashKey(methodHTTP string, sourceURL string) string {
@@ -49,7 +49,7 @@ func GetRoutingCfgFromRequestKey(ctx context.Context, requestKey string) (models
 		return models.ReqRoutingInfo{}, err
 	}
 
-	return rri.(models.ReqRoutingInfo), nil
+	return *rri, nil
 }
 
 func GetAllRoutingCfgs(ctx context.Context) ([]string, error) {
