@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
 	mw "github.com/IliyaYavorovPetrov/api-gateway/app/server/middleware"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
@@ -24,13 +23,12 @@ func main() {
 	adminRoutes := router.PathPrefix("/admin/v0").Subrouter()
 
 	apiRoutes.HandleFunc("/{path:.*}", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("[ %s ] %s%s\n %v", r.Method, r.Host, r.URL.Path, r.Header)
 	})
-	apiRoutes.Use(mw.Routing)
-	apiRoutes.Use(mw.Auth)
-	apiRoutes.Use(mw.RateLimitting)
+	//apiRoutes.Use(mw.Routing)
+	//apiRoutes.Use(mw.Auth)
+	//apiRoutes.Use(mw.RateLimitting)
 	apiRoutes.Use(mw.Logger)
-	apiRoutes.Use(mw.Transform)
+	//apiRoutes.Use(mw.Transform)
 
 	adminRoutes.HandleFunc("/routing/configuration/all", routing.GetAllRoutingCfgHandler).Methods(http.MethodGet)
 	adminRoutes.HandleFunc("/routing/configuration", routing.AddRoutingCfgHandler).Methods(http.MethodPost)

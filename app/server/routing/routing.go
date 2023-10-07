@@ -27,7 +27,7 @@ func Init(ctx context.Context) {
 	}
 }
 
-func createRoutingCfgHashKey(methodHTTP string, sourceURL string) string {
+func CreateRoutingCfgHashKey(methodHTTP string, sourceURL string) string {
 	return prefixRoutingCfg + methodHTTP + delimiter + sourceURL
 }
 
@@ -40,7 +40,7 @@ func ExtractRequestKeyFromRoutingCfgHashKey(s string) (string, error) {
 }
 
 func AddToRoutingCfgStore(ctx context.Context, rri models.ReqRoutingInfo) (string, error) {
-	err := distributedCache.Add(ctx, createRoutingCfgHashKey(rri.MethodHTTP, rri.SourceURL), rri)
+	err := distributedCache.Add(ctx, CreateRoutingCfgHashKey(rri.MethodHTTP, rri.SourceURL), rri)
 	if err != nil {
 		log.Fatalf("failed to add a routing configuration %s", err)
 		return "", err

@@ -9,7 +9,9 @@ import (
 	"testing"
 )
 
-func clearSessionStore(ctx context.Context) {
+func setup(ctx context.Context) {
+	auth.Init(ctx)
+
 	err := auth.ClearSessionStore(ctx)
 	if err != nil {
 		log.Fatal("could not clear session store")
@@ -18,7 +20,7 @@ func clearSessionStore(ctx context.Context) {
 
 func TestAddAndGetFromSessionStore(t *testing.T) {
 	ctx := context.Background()
-	clearSessionStore(ctx)
+	setup(ctx)
 
 	session1 := models.Session{
 		UserID:        "id1",
@@ -44,7 +46,7 @@ func TestAddAndGetFromSessionStore(t *testing.T) {
 
 func TestRemovingSessionFromSessionStore(t *testing.T) {
 	ctx := context.Background()
-	clearSessionStore(ctx)
+	setup(ctx)
 
 	s1 := models.Session{
 		UserID:        "id1",

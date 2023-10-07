@@ -8,7 +8,9 @@ import (
 	"testing"
 )
 
-func clearSessionStore(ctx context.Context) {
+func setup(ctx context.Context) {
+	routing.Init(ctx)
+
 	err := routing.ClearRoutingCfgStore(ctx)
 	if err != nil {
 		log.Fatal("could not clear session store")
@@ -17,7 +19,7 @@ func clearSessionStore(ctx context.Context) {
 
 func TestAddAndGetFromRoutingCfgStore(t *testing.T) {
 	ctx := context.Background()
-	clearSessionStore(ctx)
+	setup(ctx)
 
 	rri1 := models.ReqRoutingInfo{
 		SourceURL:      "https://src",
@@ -43,7 +45,7 @@ func TestAddAndGetFromRoutingCfgStore(t *testing.T) {
 
 func TestRemovingSessionFromSessionStore(t *testing.T) {
 	ctx := context.Background()
-	clearSessionStore(ctx)
+	setup(ctx)
 
 	rri1 := models.ReqRoutingInfo{
 		SourceURL:      "https://src",
