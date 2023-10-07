@@ -28,7 +28,7 @@ func main() {
 	//apiRoutes.Use(mw.Auth)
 	//apiRoutes.Use(mw.RateLimitting)
 	apiRoutes.Use(mw.Logger)
-	//apiRoutes.Use(mw.Transform)
+	apiRoutes.Use(mw.Transform)
 
 	adminRoutes.HandleFunc("/routing/configuration", routing.AddRoutingCfgHandler).Methods(http.MethodPost)
 	adminRoutes.HandleFunc("/routing/configuration/all", routing.GetAllRoutingCfgHandler).Methods(http.MethodGet)
