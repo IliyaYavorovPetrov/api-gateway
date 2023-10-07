@@ -50,7 +50,7 @@ func AddToRoutingCfgStore(ctx context.Context, rri models.ReqRoutingInfo) (strin
 }
 
 func GetRoutingCfgFromRequestKey(ctx context.Context, requestKey string) (models.ReqRoutingInfo, error) {
-	rri, err := distributedCache.Get(ctx, prefixRoutingCfg+requestKey)
+	rri, err := distributedCache.Get(ctx, requestKey)
 	if err != nil {
 		return models.ReqRoutingInfo{}, err
 	}

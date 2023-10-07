@@ -11,10 +11,11 @@ func Routing(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), MiddlewareContextKey(IsAuthNeededKey), false)
 
-		reqKey := routing.CreateRoutingCfgHashKey(r.Method, r.Host)
+		reqKey := routing.CreateRoutingCfgHashKey(r.Method, "http://"+r.Host+r.RequestURI)
 		rri, err := routing.GetRoutingCfgFromRequestKey(ctx, reqKey)
 		if err != nil {
-			log.Fatalf("no such request in the routing configuration")
+			log.Printf("no such request in the routing configuration")
+			return
 		}
 
 		r.Host = rri.DestinationURL

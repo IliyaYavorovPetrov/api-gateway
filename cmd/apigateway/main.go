@@ -24,14 +24,14 @@ func main() {
 
 	apiRoutes.HandleFunc("/{path:.*}", func(w http.ResponseWriter, r *http.Request) {
 	})
-	//apiRoutes.Use(mw.Routing)
+	apiRoutes.Use(mw.Routing)
 	//apiRoutes.Use(mw.Auth)
 	//apiRoutes.Use(mw.RateLimitting)
 	apiRoutes.Use(mw.Logger)
 	//apiRoutes.Use(mw.Transform)
 
-	adminRoutes.HandleFunc("/routing/configuration/all", routing.GetAllRoutingCfgHandler).Methods(http.MethodGet)
 	adminRoutes.HandleFunc("/routing/configuration", routing.AddRoutingCfgHandler).Methods(http.MethodPost)
+	adminRoutes.HandleFunc("/routing/configuration/all", routing.GetAllRoutingCfgHandler).Methods(http.MethodGet)
 
 	router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "not found", http.StatusNotFound)
