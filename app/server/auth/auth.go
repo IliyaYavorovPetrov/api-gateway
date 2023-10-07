@@ -20,7 +20,7 @@ var distributedCache gateways.Cache[models.Session]
 
 func Init(ctx context.Context) {
 	localCache = local.New[models.Session]("auth-local-cache")
-	distributedCache = distributed.New[models.Session](prefixAuthSession)
+	distributedCache = distributed.New[models.Session]("auth-distributed-cache")
 
 	err := cache.LoadInfo[models.Session](ctx, localCache, distributedCache)
 	if err != nil {

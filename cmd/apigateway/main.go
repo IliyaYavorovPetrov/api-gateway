@@ -25,7 +25,7 @@ func main() {
 	apiRoutes.HandleFunc("/{path:.*}", func(w http.ResponseWriter, r *http.Request) {
 	})
 	apiRoutes.Use(layers.Routing)
-	//apiRoutes.Use(mw.Auth)
+	apiRoutes.Use(layers.Auth)
 	//apiRoutes.Use(mw.RateLimitting)
 	apiRoutes.Use(layers.Logger)
 	apiRoutes.Use(layers.Transform)
