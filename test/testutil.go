@@ -2,10 +2,10 @@ package test
 
 import (
 	"context"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/common/models"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/distributed"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/local"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
 	"log"
 )
 

@@ -3,7 +3,7 @@ package routing
 import (
 	"context"
 	"encoding/json"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/common/models"
 	"net/http"
 )
 

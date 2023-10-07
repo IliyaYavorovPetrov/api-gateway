@@ -2,7 +2,7 @@ package routing_test
 
 import (
 	"context"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/common/models"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
 	"log"
 	"testing"

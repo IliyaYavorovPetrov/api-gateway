@@ -2,8 +2,8 @@ package auth_test
 
 import (
 	"context"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/common/models"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
 	"log"
 	"reflect"
 	"testing"
