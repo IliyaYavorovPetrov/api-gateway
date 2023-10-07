@@ -1,12 +1,13 @@
-package middleware
+package layers
 
 import (
+	"log"
 	"net/http"
 )
 
-func Transform(next http.Handler) http.Handler {
+func RateLimitting(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, r.Host, http.StatusFound)
+		log.Println(r.Host)
 
 		next.ServeHTTP(w, r)
 	})

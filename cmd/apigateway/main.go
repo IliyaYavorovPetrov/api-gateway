@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
-	mw "github.com/IliyaYavorovPetrov/api-gateway/app/server/middleware"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/middleware/layers"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
 	"log"
 	"net/http"
@@ -24,11 +24,11 @@ func main() {
 
 	apiRoutes.HandleFunc("/{path:.*}", func(w http.ResponseWriter, r *http.Request) {
 	})
-	apiRoutes.Use(mw.Routing)
+	apiRoutes.Use(layers.Routing)
 	//apiRoutes.Use(mw.Auth)
 	//apiRoutes.Use(mw.RateLimitting)
-	apiRoutes.Use(mw.Logger)
-	apiRoutes.Use(mw.Transform)
+	apiRoutes.Use(layers.Logger)
+	apiRoutes.Use(layers.Transform)
 
 	adminRoutes.HandleFunc("/routing/configuration", routing.AddRoutingCfgHandler).Methods(http.MethodPost)
 	adminRoutes.HandleFunc("/routing/configuration/all", routing.GetAllRoutingCfgHandler).Methods(http.MethodGet)

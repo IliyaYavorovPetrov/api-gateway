@@ -1,5 +1,5 @@
 package middleware
 
-type MiddlewareContextKey string
+type ContextKey string
 
 var IsAuthNeededKey = "IsAuthNeeded"
