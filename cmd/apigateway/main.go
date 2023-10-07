@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
 	mw "github.com/IliyaYavorovPetrov/api-gateway/app/server/middleware"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
 	"log"
@@ -11,7 +13,12 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
 	router := mux.NewRouter()
+
+	routing.Init(ctx)
+	auth.Init(ctx)
 
 	apiRoutes := router.PathPrefix("/api/v0").Subrouter()
 	adminRoutes := router.PathPrefix("/admin/v0").Subrouter()

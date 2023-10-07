@@ -3,6 +3,7 @@ package routing
 import (
 	"context"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/distributed"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/local"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
@@ -16,9 +17,14 @@ var prefixRoutingCfg = "routing:cfg:"
 var localCache gateways.Cache[models.ReqRoutingInfo]
 var distributedCache gateways.Cache[models.ReqRoutingInfo]
 
-func init() {
+func Init(ctx context.Context) {
 	localCache = local.New[models.ReqRoutingInfo]("routing-local-cache")
 	distributedCache = distributed.New[models.ReqRoutingInfo]("routing-distributed-cache")
+
+	err := cache.LoadInfo[models.ReqRoutingInfo](ctx, localCache, distributedCache)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func createRoutingCfgHashKey(methodHTTP string, sourceURL string) string {

@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/distributed"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/local"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/models"
@@ -17,9 +18,14 @@ var prefixAuthSession = "auth:session:"
 var localCache gateways.Cache[models.Session]
 var distributedCache gateways.Cache[models.Session]
 
-func init() {
+func Init(ctx context.Context) {
 	localCache = local.New[models.Session]("auth-local-cache")
 	distributedCache = distributed.New[models.Session]("auth-distributed-cache")
+
+	err := cache.LoadInfo[models.Session](ctx, localCache, distributedCache)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func createSessionHashKey(sessionID string) string {
