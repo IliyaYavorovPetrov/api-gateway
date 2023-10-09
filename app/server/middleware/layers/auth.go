@@ -43,10 +43,9 @@ func Auth(next http.Handler) http.Handler {
 				log.Printf("new session was created with id %s\n", id)
 			}
 
-			// Copy the captured response to the original ResponseWriter
 			responseWriter.CopyTo(w)
 		} else {
-			// Check for the session
+			// TODO: Check in the cookie if the session id exists
 			next.ServeHTTP(w, r)
 		}
 	})

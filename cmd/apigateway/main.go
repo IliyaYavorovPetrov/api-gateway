@@ -5,6 +5,7 @@ import (
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/middleware/layers"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
+	"github.com/gorilla/handlers"
 	"log"
 	"net/http"
 
@@ -30,6 +31,13 @@ func main() {
 	apiRoutes.Use(layers.Logger)
 	apiRoutes.Use(layers.Transform)
 
+	adminCorsHandler := handlers.CORS(
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
+		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
+	)
+
+	adminRoutes.Use(adminCorsHandler)
 	adminRoutes.HandleFunc("/routing/configuration", routing.AddRoutingCfgHandler).Methods(http.MethodPost)
 	adminRoutes.HandleFunc("/routing/configuration/all", routing.GetAllRoutingCfgHandler).Methods(http.MethodGet)
 
