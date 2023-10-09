@@ -45,6 +45,7 @@ func Auth(next http.Handler) http.Handler {
 
 			responseWriter.CopyTo(w)
 		} else {
+			// TODO: Check in the cookie if the session id exists
 			next.ServeHTTP(w, r)
 		}
 	})
