@@ -4,70 +4,53 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"log"
 
-	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
 	cacheprovider "github.com/redis/go-redis/v9"
 )
 
-var pool = make(map[string]Gateway)
-
-type Gateway struct {
+type Gateway[V any] struct {
 	name  string
 	cache *cacheprovider.Client
 }
 
-var _ gateways.Cache = (*Gateway)(nil)
+func New[V any](name string) gateways.Cache[V] {
+	pool := cache.Pool()
 
-func CreateInstance(name string) *Gateway {
-	inst := Gateway{
-		name: name,
-		cache: cacheprovider.NewClient(&cacheprovider.Options{
-			Addr:     "localhost:6379",
-			Password: "",
-			DB:       0,
-		}),
+	cm := cacheprovider.NewClient(&cacheprovider.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+
+	newCache := &Gateway[V]{
+		name:  name,
+		cache: cm,
 	}
 
-	if _, ok := pool[name]; !ok {
-		pool[name] = inst
-	}
+	(*pool)[name] = newCache
 
-	return &inst
+	return newCache
 }
 
-func GetInstance(name string) *Gateway {
-	res, ok := pool[name]
-	if ok != true {
-		return nil
-	}
+func (gw *Gateway[V]) Get(ctx context.Context, key string) (*V, error) {
+	var val V
 
-	return &res
-}
-
-func (gw *Gateway) Get(ctx context.Context, key string) (interface{}, error) {
 	data, err := gw.cache.HGet(ctx, gw.name, key).Result()
 	if err != nil {
 		return nil, cache.ErrNotFoundKey
 	}
 
-	var rri routing.ReqRoutingInfo
-	if err := json.Unmarshal([]byte(data), &rri); err == nil {
-		return rri, nil
+	if err := json.Unmarshal([]byte(data), &val); err != nil {
+		return nil, cache.ErrNotFoundKey
 	}
 
-	var session auth.Session
-	if err := json.Unmarshal([]byte(data), &session); err == nil {
-		return session, nil
-	}
-
-	return nil, cache.ErrUndefinedValueType
+	return &val, nil
 }
 
-func (gw *Gateway) Add(ctx context.Context, key string, val interface{}) error {
+func (gw *Gateway[V]) Add(ctx context.Context, key string, val V) error {
 	serializedVal, err := json.Marshal(val)
 	if err != nil {
 		return err
@@ -80,7 +63,7 @@ func (gw *Gateway) Add(ctx context.Context, key string, val interface{}) error {
 	return nil
 }
 
-func (gw *Gateway) AddAllItems(ctx context.Context, other map[string]interface{}) error {
+func (gw *Gateway[V]) AddAllItems(ctx context.Context, other map[string]V) error {
 	for key, val := range other {
 		if err := gw.Add(ctx, key, val); err != nil {
 			log.Printf("failed to add key '%s' to cache: %v", key, err)
@@ -90,7 +73,7 @@ func (gw *Gateway) AddAllItems(ctx context.Context, other map[string]interface{}
 	return nil
 }
 
-func (gw *Gateway) GetAllKeysByPrefix(ctx context.Context, prefix string) ([]string, error) {
+func (gw *Gateway[V]) GetAllKeysByPrefix(ctx context.Context, prefix string) ([]string, error) {
 	var results []string
 
 	cursor := uint64(0)
@@ -119,13 +102,13 @@ func (gw *Gateway) GetAllKeysByPrefix(ctx context.Context, prefix string) ([]str
 	return results, nil
 }
 
-func (gw *Gateway) GetAllItems(ctx context.Context) (map[string]interface{}, error) {
+func (gw *Gateway[V]) GetAllItems(ctx context.Context) (map[string]V, error) {
 	keys, err := gw.GetAllKeysByPrefix(ctx, "")
 	if err != nil {
 		return nil, err
 	}
 
-	items := make(map[string]interface{})
+	items := make(map[string]V)
 
 	for _, key := range keys {
 		data, err := gw.Get(ctx, key)
@@ -134,14 +117,14 @@ func (gw *Gateway) GetAllItems(ctx context.Context) (map[string]interface{}, err
 		}
 
 		if data != nil {
-			items[key] = data
+			items[key] = *data
 		}
 	}
 
 	return items, nil
 }
 
-func (gw *Gateway) Delete(ctx context.Context, key string) error {
+func (gw *Gateway[V]) Delete(ctx context.Context, key string) error {
 	_, err := gw.cache.HDel(ctx, gw.name, key).Result()
 	if err != nil {
 		return err
@@ -150,7 +133,7 @@ func (gw *Gateway) Delete(ctx context.Context, key string) error {
 	return nil
 }
 
-func (gw *Gateway) Flush(ctx context.Context) error {
+func (gw *Gateway[V]) Flush(ctx context.Context) error {
 	_, err := gw.cache.FlushAll(ctx).Result()
 	if err != nil {
 		return err

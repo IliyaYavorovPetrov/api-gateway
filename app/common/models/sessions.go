@@ -1,4 +1,4 @@
-package auth
+package models
 
 import (
 	"encoding/json"
@@ -38,15 +38,6 @@ type Session struct {
 	Username      string `redis:"username" json:"username"`
 	UserRole      string `redis:"userRole" json:"userRole"`
 	IsBlacklisted bool   `redis:"isBlacklisted" json:"isBlacklisted"`
-}
-
-func NewSession(userID string, username string, userRole string, isBlacklisted bool) (Session, error) {
-	role, err := NewRoleFromString(userRole)
-	if err != nil {
-		return Session{}, ErrNotValidUserRole
-	}
-
-	return Session{userID, username, string(role), isBlacklisted}, nil
 }
 
 func (s Session) Equals(other interface{}) bool {

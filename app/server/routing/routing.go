@@ -2,42 +2,36 @@ package routing
 
 import (
 	"context"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/common/models"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/distributed"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/local"
 	"log"
 	"strings"
-
-	"github.com/redis/go-redis/v9"
 )
-
-var rdb = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
-	Password: "",
-	DB:       0,
-})
 
 var delimiter = "|"
 var prefixRoutingCfg = "routing:cfg:"
 
-func createRequestKey(methodHTTP string, sourceURL string) string {
-	return methodHTTP + delimiter + sourceURL
-}
+var localCache gateways.Cache[models.ReqRoutingInfo]
+var distributedCache gateways.Cache[models.ReqRoutingInfo]
 
-func GetMethodHTTPSourceURLFromRequestKey(s string) (string, string, error) {
-	ps := strings.Split(s, delimiter)
+func Init(ctx context.Context) {
+	localCache = local.New[models.ReqRoutingInfo]("routing-local-cache")
+	distributedCache = distributed.New[models.ReqRoutingInfo]("routing-distributed-cache")
 
-	if len(ps) == 2 {
-		methodHTTP := strings.TrimSpace(ps[0])
-		sourceURL := strings.TrimSpace(ps[1])
-		return methodHTTP, sourceURL, nil
+	err := cache.LoadInfo[models.ReqRoutingInfo](ctx, localCache, distributedCache)
+	if err != nil {
+		panic(err)
 	}
-
-	return "", "", ErrNotValidRequestKey
 }
 
-func createRoutingCfgHashKey(methodHTTP string, sourceURL string) string {
-	return prefixRoutingCfg + createRequestKey(methodHTTP, sourceURL)
+func CreateRoutingCfgHashKey(methodHTTP string, sourceURL string) string {
+	return prefixRoutingCfg + methodHTTP + delimiter + sourceURL
 }
 
-func GetRequestKeyFromRoutingCfgHashKey(s string) (string, error) {
+func ExtractRequestKeyFromRoutingCfgHashKey(s string) (string, error) {
 	if strings.HasPrefix(s, prefixRoutingCfg) {
 		return s[len(prefixRoutingCfg):], nil
 	}
@@ -45,62 +39,56 @@ func GetRequestKeyFromRoutingCfgHashKey(s string) (string, error) {
 	return s, ErrNotValidCfgRoutingHashKey
 }
 
-func AddToRoutingCfgStore(ctx context.Context, rri *ReqRoutingInfo) (string, error) {
-	if _, err := rdb.HSet(ctx, createRoutingCfgHashKey(rri.MethodHTTP, rri.SourceURL), rri).Result(); err != nil {
+func AddToRoutingCfgStore(ctx context.Context, rri models.ReqRoutingInfo) (string, error) {
+	err := distributedCache.Add(ctx, CreateRoutingCfgHashKey(rri.MethodHTTP, rri.SourceURL), rri)
+	if err != nil {
 		log.Fatalf("failed to add a routing configuration %s", err)
 		return "", err
 	}
 
-	return createRequestKey(rri.MethodHTTP, rri.SourceURL), nil
+	return rri.MethodHTTP + delimiter + rri.SourceURL, nil
 }
 
-func GetRoutingCfgFromMethodHTTPSourceURL(ctx context.Context, methodHTTP string, sourceURL string) (ReqRoutingInfo, error) {
-	rri, err := GetRoutingCfgFromRequestKey(ctx, createRoutingCfgHashKey(methodHTTP, sourceURL))
+func GetRoutingCfgFromRequestKey(ctx context.Context, requestKey string) (models.ReqRoutingInfo, error) {
+	rri, err := distributedCache.Get(ctx, requestKey)
 	if err != nil {
-		return ReqRoutingInfo{}, err
+		return models.ReqRoutingInfo{}, err
 	}
 
-	return rri, nil
-}
-
-func GetRoutingCfgFromRequestKey(ctx context.Context, requestKey string) (ReqRoutingInfo, error) {
-	var rri ReqRoutingInfo
-	err := rdb.HGetAll(ctx, requestKey).Scan(&rri)
-	if err != nil {
-		return ReqRoutingInfo{}, err
-	}
-
-	return rri, nil
+	return *rri, nil
 }
 
 func GetAllRoutingCfgs(ctx context.Context) ([]string, error) {
-	var rri []string
-	iter := rdb.Scan(ctx, 0, prefixRoutingCfg+"*", 0).Iterator()
-	for iter.Next(ctx) {
-		rri = append(rri, iter.Val())
-	}
-	if err := iter.Err(); err != nil {
+	rris, err := distributedCache.GetAllKeysByPrefix(ctx, prefixRoutingCfg)
+	if err != nil {
 		return nil, err
 	}
 
-	return rri, nil
+	return rris, nil
+}
+
+func RemoveRoutingCfgFromRoutingStore(ctx context.Context, requestKey string) error {
+	err := distributedCache.Delete(ctx, requestKey)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func ClearRoutingCfgStore(ctx context.Context) error {
-	routingCfgs, err := GetAllRoutingCfgs(ctx);
+	routingCfgs, err := GetAllRoutingCfgs(ctx)
 	if err != nil {
 		return err
 	}
 
-	pipe := rdb.Pipeline()
 	for _, routingCfg := range routingCfgs {
-		pipe.Del(ctx, routingCfg)
+		err = distributedCache.Delete(ctx, routingCfg)
+
+		if err != nil {
+			log.Fatalf("failed to delete a routing configuration %s", err)
+		}
 	}
 
-	_, err = pipe.Exec(ctx)
-	if err != nil {
-		return err
-	}
-	
-	return nil;
+	return nil
 }

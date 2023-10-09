@@ -2,32 +2,17 @@ package local_test
 
 import (
 	"context"
-	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/common/models"
 	"github.com/IliyaYavorovPetrov/api-gateway/test"
 	"testing"
-
-	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/local"
 )
-
-func TestCreateInstance(t *testing.T) {
-	test.ClearDistributedCache()
-	cache := local.GetInstance("wrong-cache")
-	if cache != nil {
-		t.Errorf("expected to get a no cache, but got one")
-	}
-
-	cache = local.GetInstance("test-cache")
-	if cache == nil {
-		t.Errorf("expected to get a cache, but didn't got one")
-	}
-}
 
 func TestAddAndGet(t *testing.T) {
 	test.ClearLocalCache()
-	cache := local.GetInstance("test-cache")
+	cache := test.GetLocalCache()
 
 	key := "key1"
-	rri := routing.ReqRoutingInfo{
+	rri := models.ReqRoutingInfo{
 		SourceURL:      "https://src/1",
 		DestinationURL: "http://dest/1",
 		MethodHTTP:     "GET",
@@ -43,23 +28,23 @@ func TestAddAndGet(t *testing.T) {
 	if err != nil {
 		t.Errorf("Get failed: %v", err)
 	}
-	if res != rri {
-		t.Errorf("expected %s, but got %s", rri.ToString(), res)
+	if *res != rri {
+		t.Errorf("expected %+v, but got %+v", rri, res)
 	}
 }
 
 func TestAddAllItems(t *testing.T) {
 	test.ClearLocalCache()
-	cache := local.GetInstance("test-cache")
+	cache := test.GetLocalCache()
 
-	data := map[string]interface{}{
-		"key1": routing.ReqRoutingInfo{
+	data := map[string]models.ReqRoutingInfo{
+		"key1": {
 			SourceURL:      "https://src/1",
 			DestinationURL: "http://dest/1",
 			MethodHTTP:     "GET",
 			IsAuthNeeded:   false,
 		},
-		"key2": routing.ReqRoutingInfo{
+		"key2": {
 			SourceURL:      "https://src/2",
 			DestinationURL: "http://dest/2",
 			MethodHTTP:     "GET",
@@ -77,30 +62,30 @@ func TestAddAllItems(t *testing.T) {
 		if err != nil {
 			t.Errorf("Get failed: %v", err)
 		}
-		if res != val {
-			t.Errorf("expected %s, but got %s", val, res)
+		if *res != val {
+			t.Errorf("expected %+v, but got %+v", val, res)
 		}
 	}
 }
 
 func TestGetAllKeysByPrefix(t *testing.T) {
 	test.ClearLocalCache()
-	cache := local.GetInstance("test-cache")
+	cache := test.GetLocalCache()
 
-	data := map[string]interface{}{
-		"test:key:key1": routing.ReqRoutingInfo{
+	data := map[string]models.ReqRoutingInfo{
+		"test:key:key1": {
 			SourceURL:      "https://src/1",
 			DestinationURL: "http://dest/1",
 			MethodHTTP:     "GET",
 			IsAuthNeeded:   false,
 		},
-		"test:key:key2": routing.ReqRoutingInfo{
+		"test:key:key2": {
 			SourceURL:      "https://src/2",
 			DestinationURL: "http://dest/2",
 			MethodHTTP:     "GET",
 			IsAuthNeeded:   false,
 		},
-		"wrong:key:key2": routing.ReqRoutingInfo{
+		"wrong:key:key2": models.ReqRoutingInfo{
 			SourceURL:      "https://src/3",
 			DestinationURL: "http://dest/3",
 			MethodHTTP:     "GET",
@@ -129,16 +114,16 @@ func TestGetAllKeysByPrefix(t *testing.T) {
 
 func TestGetAllItems(t *testing.T) {
 	test.ClearLocalCache()
-	cache := local.GetInstance("test-cache")
+	cache := test.GetLocalCache()
 
-	data := map[string]interface{}{
-		"test:key:key1": routing.ReqRoutingInfo{
+	data := map[string]models.ReqRoutingInfo{
+		"test:key:key1": {
 			SourceURL:      "https://src/1",
 			DestinationURL: "http://dest/1",
 			MethodHTTP:     "GET",
 			IsAuthNeeded:   false,
 		},
-		"test:key:key2": routing.ReqRoutingInfo{
+		"test:key:key2": {
 			SourceURL:      "https://src/2",
 			DestinationURL: "http://dest/2",
 			MethodHTTP:     "GET",
@@ -163,16 +148,16 @@ func TestGetAllItems(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	test.ClearLocalCache()
-	cache := local.GetInstance("test-cache")
+	cache := test.GetLocalCache()
 
-	data := map[string]interface{}{
-		"test:key:key1": routing.ReqRoutingInfo{
+	data := map[string]models.ReqRoutingInfo{
+		"test:key:key1": {
 			SourceURL:      "https://src/1",
 			DestinationURL: "http://dest/1",
 			MethodHTTP:     "GET",
 			IsAuthNeeded:   false,
 		},
-		"test:key:key2": routing.ReqRoutingInfo{
+		"test:key:key2": {
 			SourceURL:      "https://src/2",
 			DestinationURL: "http://dest/2",
 			MethodHTTP:     "GET",

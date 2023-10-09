@@ -2,14 +2,16 @@ package routing_test
 
 import (
 	"context"
-	routing2 "github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/common/models"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/server/routing"
 	"log"
-	"reflect"
 	"testing"
 )
 
-func clearSessionStore(ctx context.Context) {
-	err := routing2.ClearRoutingCfgStore(ctx)
+func setup(ctx context.Context) {
+	routing.Init(ctx)
+
+	err := routing.ClearRoutingCfgStore(ctx)
 	if err != nil {
 		log.Fatal("could not clear session store")
 	}
@@ -17,59 +19,54 @@ func clearSessionStore(ctx context.Context) {
 
 func TestAddAndGetFromRoutingCfgStore(t *testing.T) {
 	ctx := context.Background()
-	clearSessionStore(ctx)
+	setup(ctx)
 
-	rri1 := &routing2.ReqRoutingInfo{
+	rri1 := models.ReqRoutingInfo{
 		SourceURL:      "https://src",
 		DestinationURL: "http://dest",
 		MethodHTTP:     "POST",
 		IsAuthNeeded:   true,
 	}
 
-	reqKey, err := routing2.AddToRoutingCfgStore(ctx, rri1)
+	reqKey, err := routing.AddToRoutingCfgStore(ctx, rri1)
 	if err != nil {
 		t.Fatalf("AddToRoutingCfgStore failed: %v", err)
 	}
 
-	methodHTTP, sourceURL, err := routing2.GetMethodHTTPSourceURLFromRequestKey(reqKey)
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
-
-	rri2, err := routing2.GetRoutingCfgFromMethodHTTPSourceURL(ctx, methodHTTP, sourceURL)
+	rri2, err := routing.GetRoutingCfgFromRequestKey(ctx, reqKey)
 	if err != nil {
 		t.Fatalf("GetRoutingCfgFromMethodHTTPSourceURL failed: %v", err)
 	}
 
-	if !reflect.DeepEqual(rri1, rri2) {
+	if rri1 != rri2 {
 		t.Errorf("request session infos are different")
 	}
 }
 
 func TestRemovingSessionFromSessionStore(t *testing.T) {
 	ctx := context.Background()
-	clearSessionStore(ctx)
+	setup(ctx)
 
-	rri1 := &routing2.ReqRoutingInfo{
+	rri1 := models.ReqRoutingInfo{
 		SourceURL:      "https://src",
 		DestinationURL: "http://dest",
 		MethodHTTP:     "POST",
 		IsAuthNeeded:   true,
 	}
 
-	reqKey1, err := routing2.AddToRoutingCfgStore(ctx, rri1)
+	reqKey1, err := routing.AddToRoutingCfgStore(ctx, rri1)
 	if err != nil {
 		t.Fatalf("AddToRoutingCfgStore failed: %v", err)
 	}
 
-	rri2 := &routing2.ReqRoutingInfo{
+	rri2 := models.ReqRoutingInfo{
 		SourceURL:      "https://foo",
 		DestinationURL: "http://bar",
 		MethodHTTP:     "GET",
 		IsAuthNeeded:   false,
 	}
 
-	reqKey2, err := routing2.AddToRoutingCfgStore(ctx, rri2)
+	reqKey2, err := routing.AddToRoutingCfgStore(ctx, rri2)
 	if err != nil {
 		t.Fatalf("AddToRoutingCfgStore failed: %v", err)
 	}
@@ -78,7 +75,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	valuesToCheck[reqKey1] = struct{}{}
 	valuesToCheck[reqKey2] = struct{}{}
 
-	allReqRoutingInfos, err := routing2.GetAllRoutingCfgs(ctx)
+	allReqRoutingInfos, err := routing.GetAllRoutingCfgs(ctx)
 	if err != nil {
 		t.Fatalf("GetAllRoutingCfgs failed: %v", err)
 	}
@@ -88,7 +85,7 @@ func TestRemovingSessionFromSessionStore(t *testing.T) {
 	}
 
 	for _, str := range allReqRoutingInfos {
-		sID, err := routing2.GetRequestKeyFromRoutingCfgHashKey(str)
+		sID, err := routing.ExtractRequestKeyFromRoutingCfgHashKey(str)
 		if err != nil {
 			t.Errorf("%v", err)
 		}

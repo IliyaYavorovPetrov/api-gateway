@@ -5,30 +5,23 @@ import (
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 )
 
-// If distributed write fails, we have inconsistent state of cache
+var instances map[string]interface{}
 
-func WriteToLocalAndDistributedCaches(ctx context.Context, local gateways.Cache, distributed gateways.Cache, key string, data interface{}) error {
-	err := local.Add(ctx, key, data)
-	if err != nil {
-		return err
-	}
-
-	err = distributed.Add(ctx, key, data)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func init() {
+	instances = make(map[string]interface{})
 }
 
-// Again can have inconsistent state of cache c1
+func Pool() *map[string]interface{} {
+	return &instances
+}
 
-func LoadCacheOneWithCacheTwo(ctx context.Context, c1 gateways.Cache, c2 gateways.Cache) error {
-	items, err := c2.GetAllItems(ctx)
+func LoadInfo[V any](ctx context.Context, local gateways.Cache[V], distributed gateways.Cache[V]) error {
+	items, err := distributed.GetAllItems(ctx)
 	if err != nil {
 		return err
 	}
-	err = c1.AddAllItems(ctx, items)
+
+	err = local.AddAllItems(ctx, items)
 	if err != nil {
 		return err
 	}

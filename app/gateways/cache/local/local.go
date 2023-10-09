@@ -2,61 +2,48 @@ package local
 
 import (
 	"context"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"strings"
 
-	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache"
 	cacheprovider "github.com/orcaman/concurrent-map/v2"
 )
 
-var pool = make(map[string]Gateway)
-
-type Gateway struct {
+type Gateway[V any] struct {
 	name  string
-	cache *cacheprovider.ConcurrentMap[string, interface{}]
+	cache *cacheprovider.ConcurrentMap[string, V]
 }
 
-var _ gateways.Cache = (*Gateway)(nil)
+func New[V any](name string) gateways.Cache[V] {
+	pool := cache.Pool()
 
-func CreateInstance(name string) *Gateway {
-	c := cacheprovider.New[interface{}]()
+	cm := cacheprovider.New[V]()
 
-	inst := Gateway{
+	newCache := &Gateway[V]{
 		name:  name,
-		cache: &c,
+		cache: &cm,
 	}
 
-	if _, ok := pool[name]; !ok {
-		pool[name] = inst
-	}
+	(*pool)[name] = newCache
 
-	return &inst
+	return newCache
 }
 
-func GetInstance(name string) *Gateway {
-	res, ok := pool[name]
-	if ok != true {
-		return nil
-	}
-
-	return &res
-}
-
-func (gw *Gateway) Get(ctx context.Context, key string) (interface{}, error) {
+func (gw *Gateway[V]) Get(ctx context.Context, key string) (*V, error) {
 	val, ok := gw.cache.Get(key)
 	if !ok {
 		return nil, cache.ErrNotFoundKey
 	}
 
-	return val, nil
+	return &val, nil
 }
 
-func (gw *Gateway) Add(ctx context.Context, key string, val interface{}) error {
+func (gw *Gateway[V]) Add(ctx context.Context, key string, val V) error {
 	gw.cache.Set(key, val)
 	return nil
 }
 
-func (gw *Gateway) AddAllItems(ctx context.Context, other map[string]interface{}) error {
+func (gw *Gateway[V]) AddAllItems(ctx context.Context, other map[string]V) error {
 	for key, val := range other {
 		gw.cache.Set(key, val)
 	}
@@ -64,7 +51,7 @@ func (gw *Gateway) AddAllItems(ctx context.Context, other map[string]interface{}
 	return nil
 }
 
-func (gw *Gateway) GetAllKeysByPrefix(ctx context.Context, prefix string) ([]string, error) {
+func (gw *Gateway[V]) GetAllKeysByPrefix(ctx context.Context, prefix string) ([]string, error) {
 	var results []string
 	keys := gw.cache.Keys()
 	for _, item := range keys {
@@ -76,17 +63,17 @@ func (gw *Gateway) GetAllKeysByPrefix(ctx context.Context, prefix string) ([]str
 	return results, nil
 }
 
-func (gw *Gateway) GetAllItems(ctx context.Context) (map[string]interface{}, error) {
+func (gw *Gateway[V]) GetAllItems(ctx context.Context) (map[string]V, error) {
 	items := gw.cache.Items()
 	return items, nil
 }
 
-func (gw *Gateway) Delete(ctx context.Context, key string) error {
+func (gw *Gateway[V]) Delete(ctx context.Context, key string) error {
 	gw.cache.Pop(key)
 	return nil
 }
 
-func (gw *Gateway) Flush(ctx context.Context) error {
+func (gw *Gateway[V]) Flush(ctx context.Context) error {
 	gw.cache.Clear()
 	return nil
 }

@@ -2,20 +2,31 @@ package auth
 
 import (
 	"context"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/common/models"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/distributed"
+	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/local"
 	"log"
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/redis/go-redis/v9"
 )
 
-var rdb = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
-	Password: "",
-	DB:       0,
-})
-
 var prefixAuthSession = "auth:session:"
+
+var localCache gateways.Cache[models.Session]
+var distributedCache gateways.Cache[models.Session]
+
+func Init(ctx context.Context) {
+	localCache = local.New[models.Session]("auth-local-cache")
+	distributedCache = distributed.New[models.Session]("auth-distributed-cache")
+
+	err := cache.LoadInfo[models.Session](ctx, localCache, distributedCache)
+	if err != nil {
+		panic(err)
+	}
+}
 
 func createSessionHashKey(sessionID string) string {
 	return prefixAuthSession + sessionID
@@ -29,51 +40,38 @@ func ExtractSessionIDFromSessionHashKey(s string) (string, error) {
 	return s, ErrNotValidSessionHashKey
 }
 
-func AddToSessionStore(ctx context.Context, s *Session) (string, error) {
+func AddToSessionStore(ctx context.Context, session models.Session) (string, error) {
 	sessionID := uuid.New().String()
 
-	if _, err := rdb.HSet(ctx, createSessionHashKey(sessionID), s).Result(); err != nil {
-		log.Fatalf("failed to add an auth session %s", err)
+	err := distributedCache.Add(ctx, createSessionHashKey(sessionID), session)
+	if err != nil {
+		log.Fatalf("failed to add an auth session %session", err)
 		return "", err
 	}
 
 	return sessionID, nil
 }
 
-func GetSessionFromSessionID(ctx context.Context, sessionID string) (*Session, error) {
-	var s Session
-	err := rdb.HGetAll(ctx, createSessionHashKey(sessionID)).Scan(&s)
+func GetSessionFromSessionID(ctx context.Context, sessionID string) (models.Session, error) {
+	session, err := distributedCache.Get(ctx, createSessionHashKey(sessionID))
 	if err != nil {
-		return nil, err
+		return models.Session{}, err
 	}
 
-	return &s, nil
+	return *session, nil
 }
 
 func GetAllSessionIDs(ctx context.Context) ([]string, error) {
-	var sessions []string
-	iter := rdb.Scan(ctx, 0, prefixAuthSession+"*", 0).Iterator()
-	for iter.Next(ctx) {
-		sessions = append(sessions, iter.Val())
-	}
-	if err := iter.Err(); err != nil {
+	sessions, err := distributedCache.GetAllKeysByPrefix(ctx, prefixAuthSession)
+	if err != nil {
 		return nil, err
 	}
 
 	return sessions, nil
 }
 
-func ChangeBlacklistStatusOfSession(ctx context.Context, sessionID string, blackListStatus bool) error {
-	if _, err := rdb.HSet(ctx, createSessionHashKey(sessionID), "isBlacklisted", blackListStatus).Result(); err != nil {
-		log.Fatalf("failed to create an auth session %s", err)
-		return err
-	}
-
-	return nil
-}
-
 func RemoveSessionFromSessionStore(ctx context.Context, sessionID string) error {
-	err := rdb.HDel(ctx, createSessionHashKey(sessionID)).Err()
+	err := distributedCache.Delete(ctx, createSessionHashKey(sessionID))
 	if err != nil {
 		return err
 	}
@@ -82,20 +80,18 @@ func RemoveSessionFromSessionStore(ctx context.Context, sessionID string) error 
 }
 
 func ClearSessionStore(ctx context.Context) error {
-	sessionIDs, err := GetAllSessionIDs(ctx);
+	sessionIDs, err := GetAllSessionIDs(ctx)
 	if err != nil {
 		return err
 	}
 
-	pipe := rdb.Pipeline()
 	for _, sessionID := range sessionIDs {
-		pipe.Del(ctx, sessionID)
+		err = distributedCache.Delete(ctx, sessionID)
+
+		if err != nil {
+			log.Fatalf("failed to delete a session %s", err)
+		}
 	}
 
-	_, err = pipe.Exec(ctx)
-	if err != nil {
-		return err
-	}
-	
-	return nil;
+	return nil
 }
