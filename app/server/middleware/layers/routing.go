@@ -19,7 +19,14 @@ func Routing(next http.Handler) http.Handler {
 			return
 		}
 
-		r.Host = rri.DestinationURL
+		proxyReq, err := http.NewRequest(r.Method, rri.DestinationURL, r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadGateway)
+			return
+		}
+		proxyReq.Header = r.Header
+		ctx = context.WithValue(r.Context(), middleware.ContextKey(middleware.ProxyRequest), proxyReq)
+
 		if rri.IsAuthNeeded {
 			ctx = context.WithValue(r.Context(), middleware.ContextKey(middleware.IsAuthNeededKey), true)
 		}
