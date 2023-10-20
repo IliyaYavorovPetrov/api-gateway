@@ -1,0 +1,8 @@
+[
+  {
+    "sourceURL": "http://localhost:8080/api/v0/register",
+    "destinationURL": "http://localhost:8081/register",
+    "methodHTTP": "POST",
+    "isAuthNeeded": false
+  }
+]

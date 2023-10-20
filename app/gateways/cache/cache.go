@@ -15,13 +15,13 @@ func Pool() *map[string]interface{} {
 	return &instances
 }
 
-func LoadInfo[V any](ctx context.Context, local gateways.Cache[V], distributed gateways.Cache[V]) error {
-	items, err := distributed.GetAllItems(ctx)
+func SyncFromTo[V any](ctx context.Context, from gateways.Cache[V], to gateways.Cache[V]) error {
+	items, err := from.GetAllItems(ctx)
 	if err != nil {
 		return err
 	}
 
-	err = local.AddAllItems(ctx, items)
+	err = to.AddAllItems(ctx, items)
 	if err != nil {
 		return err
 	}
