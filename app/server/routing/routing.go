@@ -7,6 +7,7 @@ import (
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/distributed"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/gateways/cache/local"
+	"github.com/robfig/cron/v3"
 	"log"
 	"strings"
 )
@@ -18,17 +19,38 @@ var localCache gateways.Cache[models.ReqRoutingInfo]
 var distributedCache gateways.Cache[models.ReqRoutingInfo]
 
 func Init(ctx context.Context) {
+	crn := cron.New()
 	localCache = local.New[models.ReqRoutingInfo]("routing-local-cache")
 	distributedCache = distributed.New[models.ReqRoutingInfo]("routing-distributed-cache")
 
-	err := cache.LoadInfo[models.ReqRoutingInfo](ctx, localCache, distributedCache)
+	_, err := crn.AddFunc("@every 10s", persistDistributedCache)
 	if err != nil {
-		panic(err)
+		panic("could not load start sync between local and distributed cache")
+	}
+	crn.Start()
+
+	err = cache.SyncFromTo[models.ReqRoutingInfo](ctx, distributedCache, localCache)
+	if err != nil {
+		log.Fatal("could not load routing configuration")
 	}
 }
 
+func persistDistributedCache() {
+	ctx := context.Background()
+	err := cache.SyncFromTo[models.ReqRoutingInfo](ctx, localCache, distributedCache)
+	if err != nil {
+		log.Fatal("could not load routing configuration")
+	}
+	log.Println("distributed cache is updated")
+}
+
 func CreateRoutingCfgHashKey(methodHTTP string, sourceURL string) string {
-	return prefixRoutingCfg + methodHTTP + delimiter + sourceURL
+	var sb strings.Builder
+	sb.WriteString(prefixRoutingCfg)
+	sb.WriteString(methodHTTP)
+	sb.WriteString(delimiter)
+	sb.WriteString(sourceURL)
+	return sb.String()
 }
 
 func ExtractRequestKeyFromRoutingCfgHashKey(s string) (string, error) {
@@ -40,17 +62,21 @@ func ExtractRequestKeyFromRoutingCfgHashKey(s string) (string, error) {
 }
 
 func AddToRoutingCfgStore(ctx context.Context, rri models.ReqRoutingInfo) (string, error) {
-	err := distributedCache.Add(ctx, CreateRoutingCfgHashKey(rri.MethodHTTP, rri.SourceURL), rri)
+	err := localCache.Add(ctx, CreateRoutingCfgHashKey(rri.MethodHTTP, rri.SourceURL), rri)
 	if err != nil {
 		log.Fatalf("failed to add a routing configuration %s", err)
 		return "", err
 	}
 
-	return rri.MethodHTTP + delimiter + rri.SourceURL, nil
+	var sb strings.Builder
+	sb.WriteString(rri.MethodHTTP)
+	sb.WriteString(delimiter)
+	sb.WriteString(rri.SourceURL)
+	return sb.String(), nil
 }
 
 func GetRoutingCfgFromRequestKey(ctx context.Context, requestKey string) (models.ReqRoutingInfo, error) {
-	rri, err := distributedCache.Get(ctx, requestKey)
+	rri, err := localCache.Get(ctx, requestKey)
 	if err != nil {
 		return models.ReqRoutingInfo{}, err
 	}
@@ -59,7 +85,7 @@ func GetRoutingCfgFromRequestKey(ctx context.Context, requestKey string) (models
 }
 
 func GetAllRoutingCfgs(ctx context.Context) ([]string, error) {
-	rris, err := distributedCache.GetAllKeysByPrefix(ctx, prefixRoutingCfg)
+	rris, err := localCache.GetAllKeysByPrefix(ctx, prefixRoutingCfg)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +94,7 @@ func GetAllRoutingCfgs(ctx context.Context) ([]string, error) {
 }
 
 func RemoveRoutingCfgFromRoutingStore(ctx context.Context, requestKey string) error {
-	err := distributedCache.Delete(ctx, requestKey)
+	err := localCache.Delete(ctx, requestKey)
 	if err != nil {
 		return err
 	}
@@ -83,7 +109,7 @@ func ClearRoutingCfgStore(ctx context.Context) error {
 	}
 
 	for _, routingCfg := range routingCfgs {
-		err = distributedCache.Delete(ctx, routingCfg)
+		err = localCache.Delete(ctx, routingCfg)
 
 		if err != nil {
 			log.Fatalf("failed to delete a routing configuration %s", err)

@@ -22,7 +22,7 @@ func Init(ctx context.Context) {
 	localCache = local.New[models.Session]("auth-local-cache")
 	distributedCache = distributed.New[models.Session]("auth-distributed-cache")
 
-	err := cache.LoadInfo[models.Session](ctx, localCache, distributedCache)
+	err := cache.SyncFromTo[models.Session](ctx, localCache, distributedCache)
 	if err != nil {
 		panic(err)
 	}
