@@ -1,20 +1,8 @@
 [
   {
-    "sourceURL": "https://example.com/api/resource2",
-    "destinationURL": "https://destination2.com/resource",
+    "sourceURL": "http://localhost:8080/api/v0/register",
+    "destinationURL": "http://localhost:8081/register",
     "methodHTTP": "POST",
     "isAuthNeeded": false
-  },
-  {
-    "sourceURL": "https://example.com/api/resource1",
-    "destinationURL": "https://destination1.com/resource",
-    "methodHTTP": "GET",
-    "isAuthNeeded": true
-  },
-  {
-    "sourceURL": "https://example.com/api/resource3",
-    "destinationURL": "https://destination3.com/resource",
-    "methodHTTP": "PUT",
-    "isAuthNeeded": true
   }
 ]

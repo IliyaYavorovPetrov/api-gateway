@@ -41,7 +41,6 @@ func persistDistributedCache() {
 	if err != nil {
 		log.Fatal("could not load routing configuration")
 	}
-	log.Println("distributed cache is updated")
 }
 
 func CreateRoutingCfgHashKey(methodHTTP string, sourceURL string) string {

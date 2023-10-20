@@ -26,8 +26,8 @@ func main() {
 	apiRoutes.Use(layers.Routing)
 	// apiRoutes.Use(layers.Auth)
 	// apiRoutes.Use(mw.RateLimitting)
-	// apiRoutes.Use(layers.Logger)
-	// apiRoutes.Use(layers.Transform)
+	apiRoutes.Use(layers.Logger)
+	apiRoutes.Use(layers.Transform)
 
 	// ADMIN
 	adminRoutes := router.PathPrefix("/admin/v0").Subrouter()
