@@ -20,26 +20,23 @@ func main() {
 	routing.Init(ctx)
 	auth.Init(ctx)
 
+	// API
 	apiRoutes := router.PathPrefix("/api/v0").Subrouter()
-	adminRoutes := router.PathPrefix("/admin/v0").Subrouter()
-
-	apiRoutes.HandleFunc("/{path:.*}", func(w http.ResponseWriter, r *http.Request) {
-	})
+	apiRoutes.HandleFunc("/{path:.*}", func(w http.ResponseWriter, r *http.Request) {})
 	apiRoutes.Use(layers.Routing)
-	apiRoutes.Use(layers.Auth)
-	//apiRoutes.Use(mw.RateLimitting)
-	apiRoutes.Use(layers.Logger)
-	apiRoutes.Use(layers.Transform)
+	// apiRoutes.Use(layers.Auth)
+	// apiRoutes.Use(mw.RateLimitting)
+	// apiRoutes.Use(layers.Logger)
+	// apiRoutes.Use(layers.Transform)
 
+	// ADMIN
+	adminRoutes := router.PathPrefix("/admin/v0").Subrouter()
 	adminCorsHandler := handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),
 		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
-
 	adminRoutes.Use(adminCorsHandler)
-	adminRoutes.HandleFunc("/routing/configuration", routing.AddRoutingCfgHandler).Methods(http.MethodPost)
-	adminRoutes.HandleFunc("/routing/configuration/all", routing.GetAllRoutingCfgHandler).Methods(http.MethodGet)
 
 	router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "not found", http.StatusNotFound)
