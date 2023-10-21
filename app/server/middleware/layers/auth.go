@@ -2,6 +2,7 @@ package layers
 
 import (
 	"bytes"
+	"encoding/json"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/common/models"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/auth"
 	"github.com/IliyaYavorovPetrov/api-gateway/app/server/middleware"
@@ -19,35 +20,42 @@ func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		isAuthNeeded, ok := r.Context().Value(middleware.ContextKey(middleware.IsAuthNeededKey)).(bool)
 		if !ok {
-			http.Error(w, "custom data not found", http.StatusInternalServerError)
+			http.Error(w, "auth data not found", http.StatusInternalServerError)
 			return
 		}
 
+		proxyReq, ok := r.Context().Value(middleware.ContextKey(middleware.ProxyRequest)).(*http.Request)
+		if !ok {
+			http.Error(w, "auth data not found", http.StatusInternalServerError)
+			return
+		}
+
+		// Did sth and now should receive from the service on :8081 session in the body of the req
 		if !isAuthNeeded {
 			var responseWriter ResponseCapture
 			next.ServeHTTP(&responseWriter, r)
 
-			if responseWriter.Status() == http.StatusFound {
-				s := models.Session{
-					UserID:        "some-id",
-					Username:      "ivan",
-					UserRole:      "User",
-					IsBlacklisted: false,
-				}
-
-				id, err := auth.AddToSessionStore(r.Context(), s)
-				if err != nil {
-					return
-				}
-
-				log.Printf("new session was created with id %s\n", id)
+			var s models.Session
+			// Decode the response body into the Session struct.
+			err := json.NewDecoder(proxyReq.Body).Decode(&s)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
 			}
 
+			id, err := auth.AddToSessionStore(r.Context(), s)
+			if err != nil {
+				return
+			}
+
+			log.Printf("new session was created with id %s\n", id)
+
 			responseWriter.CopyTo(w)
-		} else {
-			// TODO: Check in the cookie if the session id exists
-			next.ServeHTTP(w, r)
+			return
 		}
+
+		// Check in the session store
+		next.ServeHTTP(w, r)
 	})
 }
 func (rc *ResponseCapture) Header() http.Header {

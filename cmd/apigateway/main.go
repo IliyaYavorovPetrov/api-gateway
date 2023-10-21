@@ -14,11 +14,14 @@ import (
 
 func main() {
 	ctx := context.Background()
-
-	router := mux.NewRouter()
-
 	routing.Init(ctx)
 	auth.Init(ctx)
+
+	// Healthcheck
+	router := mux.NewRouter()
+	router.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 
 	// API
 	apiRoutes := router.PathPrefix("/api/v0").Subrouter()
